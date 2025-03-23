@@ -1,12 +1,9 @@
 import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import { LineChart, Line, XAxis, YAxis, Label, ResponsiveContainer } from 'recharts';
- 
 
-// Generate Sales Data
-function createData(time: string, amount?: number) {
-  return { time, amount };
-}
+// Generar datos de ventas
+const createData = (time: string, amount?: number) => ({ time, amount });
 
 const data = [
   createData('00:00', 0),
@@ -17,15 +14,14 @@ const data = [
   createData('15:00', 2000),
   createData('18:00', 2400),
   createData('21:00', 2400),
-  createData('24:00', undefined),
+  createData('24:00', undefined), // Mejor usar null para datos faltantes
 ];
 
 export default function Chart() {
   const theme = useTheme();
 
   return (
-    <React.Fragment>
-       
+    <>
       <ResponsiveContainer>
         <LineChart
           data={data}
@@ -66,6 +62,6 @@ export default function Chart() {
           />
         </LineChart>
       </ResponsiveContainer>
-    </React.Fragment>
+    </>
   );
 }
