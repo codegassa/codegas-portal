@@ -40,13 +40,13 @@ export default function InputSearch({search}: any) {
       sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', margin: "8px 0" }}
     >
       <InputBase
-        sx={{ ml: 1, flex: 1 }}
-        placeholder="Buscar ..."
+        sx={{ ml: 2, flex: 2 }}
+        placeholder="Palabra a buscar..."
         inputProps={{ 'aria-label': 'search google maps' }}
         onChange={handleChange}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyPress}
       />
-        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={()=>handleChangeUrl(url)}>
+        <IconButton type="button" sx={{ p: '8px' }} aria-label="search" onClick={()=>handleChangeUrl(url)}>
         <SearchIcon />
       </IconButton>
     </Paper>

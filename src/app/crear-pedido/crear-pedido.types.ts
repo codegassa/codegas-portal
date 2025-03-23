@@ -2,7 +2,7 @@ export interface ParamsProps {
     searchParams: {
       page?: number;
       idUser?: number;
-      search?: string;
+      search?: string | undefined;
     };
 }
    

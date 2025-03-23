@@ -19,7 +19,7 @@ export function SelectState({newEstado, setNewEstado}: any) {
   };
 
   return (
-    <Box sx={{ minWidth: 120 }}>
+    <Box sx={{ minWidth: 100 }}>
       <FormControl fullWidth>
         <InputLabel id="demo-simple-select-label">Estado</InputLabel>
         <Select

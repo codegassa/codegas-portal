@@ -6,10 +6,10 @@ import { InputZonaProps } from "./input_zona_props";
 
 const PaperContent = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Grid item xs={12} sm={2}>
+    <Grid item xs={8} sm={2}>
       <Paper
         component="form"
-        sx={{ p: '8px 4px', display: 'flex', alignItems: 'center', marginTop: 2, marginLeft: 2 }}
+        sx={{ p: '6px 4px', display: 'flex', alignItems: 'center', marginTop: 2, marginLeft: 2 }}
       >
         {children}
       </Paper>

@@ -1,5 +1,5 @@
 'use client' 
-import { Fragment, useState, useEffect } from 'react';
+import React,{useState, useEffect, useMemo } from 'react';
 import { TableRow, TableCell, Box, Collapse, Button, Checkbox, Table, TableBody, TableContainer, TableHead, Typography, Grid, Paper, FormControl, TextField } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import moment from "moment"
@@ -9,57 +9,55 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {SelectState} from "../components/selecState"
 import {colors} from "../utils/colors"
-import { PaginationTable } from "../components/pagination/pagination";
+import {PaginationTable} from "../components/pagination/pagination";
 import {UpdateDatePedido, UpdateStatePedido, sendNovedad, resetPedido} from "../store/fetch-pedido"
 import {Date} from "../components/date"
 import {Snack} from "../components/snackBar"
 import {AlertDialog} from "../components/alertDialog/alertDialog"
 import Image from "next/image"
 import AlertConfirm from '../components/alertConfirm/alertConfirm';
+
 const {espera, noentregado, innactivo, activo, asignado, otro} = colors
-
-
-
 
 const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fechasolicitud, isCheked,
   fechaentrega, forma, kilos, valorunitario, placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus, setOpenConfirm}: any) => {
   
   const [open, setOpen] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const background=estado=="espera" ?espera :estado=="noentregado" ?noentregado :estado=="innactivo" ?innactivo :estado=="activo" &&!placa && !entregado ?activo :estado=="activo" && !entregado ?asignado :otro
-    console.log(fechaentrega)
-  return (
-    <Fragment> 
-      <TableRow
-            key={_id}
-            sx={{ 
-              background
-            }}
-          >
+  
+  const background = useMemo(() => {
+    return estado === "espera" ? espera :
+      estado === "noentregado" ? noentregado :
+      estado === "innactivo" ? innactivo :
+      estado === "activo" && !placa && !entregado ? activo :
+      estado === "activo" && !entregado ? asignado :
+      otro;
+  }, [estado, placa, entregado]); 
+    console.log('En tabla de Order: ',_id)
+  
+    return (
+    <> 
+      <TableRow key={_id} sx={{background}}>
             <TableCell align="center">
               <Checkbox
-                checked={isCheked  ?isCheked :false}
-                onChange={(e)=>addValues(_id, e)}
+                checked={isCheked || false}
+                onChange={(e) => addValues(_id, e)}
                 inputProps={{ 'aria-label': 'controlled' }}
               />
             </TableCell>
             <TableCell align="center">
-              <IconButton
-                aria-label="expand row"
-                size="small"
-                onClick={() => setOpen(!open)}
-              >
+              <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
               {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
               </IconButton>
             </TableCell>
-            <TableCell align="center" component="th">{_id}</TableCell>
-            <TableCell align="center">{codt}</TableCell>
+            <TableCell align="center" width='40' component="th">{_id}</TableCell>
+            <TableCell align="center" width='30'>{codt}</TableCell>
             <TableCell align="center">{razon_social}</TableCell>
             <TableCell align="center">{direccion}</TableCell>
-            <TableCell align="center">{zona}</TableCell>
-            <TableCell align="center">{fechasolicitud}</TableCell>
-            <TableCell align="center">
-              <Date setValueDate={(e: any) =>updateDate(e, _id)} value={fechaentrega} />
+            <TableCell align="center" width='100'>{zona}</TableCell>
+            <TableCell align="center" width='110'>{fechasolicitud}</TableCell>
+            <TableCell align="center" width='175'>
+              <Date setValueDate={(e: any) =>updateDate(e, _id)} value={fechaentrega}/>
             </TableCell>
             <TableCell align="center">
               <SelectState newEstado={estado} setNewEstado={(e: any)=>updateStatus(e, _id)} />
@@ -71,20 +69,16 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
                 </Link>
               </Button>
             </TableCell>
-           
           </TableRow>
           <TableRow>
-            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={12}>
+            <TableCell colSpan={10} style={{ paddingBottom: 0, paddingTop: 0 }}>
               <Collapse in={open} timeout="auto" unmountOnExit>
                 <Box sx={{ margin: 1 }}>
-                  <Typography variant="h6" gutterBottom component="div">
-                    Datos adicionales
-                  </Typography>
+                  <Typography variant="h6" gutterBottom>Datos adicionales</Typography>
                   <TableContainer>
-                    <Table sx={{ minWidth: 650 }} aria-label="purchases">
+                    <Table sx={{ minWidth: 750}}>
                       <TableHead>
                         <TableRow>
-                          
                           <TableCell align="center">Solicitud</TableCell>
                           <TableCell align="center">Kilos</TableCell>
                           <TableCell align="center">Valor</TableCell>
@@ -97,21 +91,14 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
                       </TableHead>
                       <TableBody>
                         <TableRow>
-                         
                           <TableCell align="center">{forma}</TableCell>
                           <TableCell align="center">{kilos}</TableCell>
                           <TableCell align="center">{valorunitario}</TableCell>
                           <TableCell align="center">{cedula}</TableCell>
                           <TableCell align="center">{moment(creado).format('YYYY-MM-DD HH:mm')}</TableCell>
-                          <TableCell align="center">
-                            {observacion_pedido}
-                          </TableCell>
-                          <TableCell align="center">
-                            {imagencerrar &&<Button variant="contained" onClick={()=>setShowDialog(true)}>Si</Button>}
-                          </TableCell>
-                          <TableCell align="center">
-                            {<Button variant="contained" onClick={()=>setOpenConfirm(_id)}>Resetear</Button>}
-                          </TableCell>
+                          <TableCell align="center">{observacion_pedido}</TableCell>
+                          <TableCell align="center">{imagencerrar &&<Button variant="contained" onClick={()=>setShowDialog(true)}>Si</Button>}</TableCell>
+                          <TableCell align="center">{<Button variant="contained" onClick={()=>setOpenConfirm(_id)}>Resetear</Button>}</TableCell>
                         </TableRow>
                       </TableBody>
                     </Table>
@@ -121,17 +108,15 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
             </TableCell>
           </TableRow>
          
-          
           <AlertDialog showDialog={showDialog} setShowDialog={()=>setShowDialog(false)}>
             {imagencerrar &&<Image src={imagencerrar} alt="codegas colombia" width={200} height={500}/> }
           </AlertDialog>
-
-    </Fragment>
+    </>
   )
 }
 
 export default function RenderTable({orders}: any) {
-  console.log(orders)
+  console.log('En RenderTable',orders)
   const [valorWithArray, setValorWithArray] = useState<{ _id: any }[]>([]);
   const [newValorWithArray, setNewValorWithArray] = useState<string | undefined>();
   const [isCheked, setIsCheked] = useState(false);
@@ -149,8 +134,7 @@ export default function RenderTable({orders}: any) {
   const newValue = searchParams.get('newValue');
   const idUser = searchParams.get('idUser');
   const acceso = searchParams.get('acceso');
-  let search = searchParams.get('search');
-  search = search || 'undefined'
+  const search = searchParams.get('search') || 'undefined';
 
 
   useEffect(()=> {
@@ -220,12 +204,13 @@ export default function RenderTable({orders}: any) {
     const {status} = await UpdateDatePedido(dataToSend)
     if (status) {
       setShowSnack(true)
-      setMessage("Fecha Actualizada")
+      setMessage("Fecha Actualizada status")
       router.push(`${pathname}?page=${page}&search=${search}&idUser=${idUser}&acceso=${acceso}&newValue=${id+dayjs(date).format('YYYY-MM-DD')}`, undefined)
     }
   }
   const updateStatus = async (state: any, id?: any) => {
     let data = valorWithArray.map((e: { _id: any; }) => {
+      console.log('UpdateStatus: ',state)
       return {
         ...e,
         estado: state,
@@ -286,7 +271,7 @@ export default function RenderTable({orders}: any) {
         valorWithArray.length>0
         &&<Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={1}>
-              <Button variant="contained" sx={{ marginTop: 1, marginLeft: 1, padding: 2, width: "100%" }}>
+              <Button variant="contained" sx={{ marginTop: 1, marginLeft: 1, padding: 1, width: "100%" }}>
                 <Link 
                   href={`carros?placa=${newValorWithArray}&date=${moment().format('YYYY-MM-DD')}`} 
                   style={{
@@ -294,14 +279,14 @@ export default function RenderTable({orders}: any) {
                     textDecoration: 'none'
                   }}
                 >
-                  Vehiculos
+                Camiones
                 </Link>
               </Button>
             </Grid>
-            <Grid item xs={12} sm={2}>
+            <Grid item xs={4} sm={2}>
               <Date setValueDate={updateDate} />
             </Grid>
-            <Grid item xs={12} sm={2}  sx={{ marginTop: 1 }} >
+            <Grid item xs={4} sm={2}  sx={{ marginTop: 1 }} >
               <SelectState setNewEstado={updateStatus}/>
             </Grid>
           </Grid>

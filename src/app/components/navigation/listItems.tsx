@@ -1,19 +1,9 @@
 'use client'
 import * as React from 'react';
-
 import {ListItemIcon, ListItemButton, ListItemText} from '@mui/material/';
-import {
-  Dashboard, 
-  Map, 
-  People, 
-  AssignmentTurnedIn, 
-  PropaneTank, 
-  VerifiedUser, 
-  BorderColor,
-  FireTruck,
-  ShoppingBag,
-} from '@mui/icons-material/';
+import {Dashboard, Map, People, AssignmentTurnedIn, PropaneTank, VerifiedUser, BorderColor, FireTruck, ShoppingBag,} from '@mui/icons-material/';
 import Link from 'next/link'
+import { usePathname } from 'next/navigation';
 const menuItems = [
   {link: "zonas", text: "Zonas", icon: <Map />},
   {link: "tanques", text: "Tanques", icon: <FireTruck/>},
@@ -25,21 +15,16 @@ const menuItems = [
   {link: "crear-tanque", text: "Crear Tanque", icon: <PropaneTank />},
   {link: "order", text: "Pedidos", icon: <Dashboard />}
 ]
-export const mainListItems = (
-  <React.Fragment>
-    {
-      menuItems.map(({text, icon, link}, index) => (
-        <Link href={link} key={index} style={{color: "#666565", textDecoration: "none"}} >
-          <ListItemButton>
-            <ListItemIcon>
-                {icon}
-            </ListItemIcon>
-              <ListItemText primary={text} />
-          </ListItemButton>
-        </Link>
-      ))
-    }
-  </React.Fragment>
-);
 
- 
+export const mainListItems = (
+  <>
+    {menuItems.map(({ text, icon, link }) => (
+      <Link href={link} key={link} style={{ color: "#666565", textDecoration: "none" }}>
+        <ListItemButton >
+          <ListItemIcon>{icon}</ListItemIcon>
+          <ListItemText primary={text} />
+        </ListItemButton>
+      </Link>
+    ))}
+  </>
+);

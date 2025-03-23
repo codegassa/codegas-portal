@@ -1,17 +1,32 @@
 import URL from '../utils/url' 
 
 export const fetchPedido = async (idUser: any, start: any, search: string, acceso: string, limit: number, newValue: any) => {
-    start = start==0 ?0 :(start-1)*10
+        // Validar y asignar valores predeterminados si es necesario
+        if (!idUser) {
+            console.error("idUser no puede ser null o undefined");
+            return [];
+        }
+        if (!acceso) {
+            console.error("acceso no puede ser null o undefined");
+            return [];
+        }
+    // Asegurarse de que 'search' y 'start' estén bien definidos
+    search = search || '';  // Si search es undefined o null, asigna un valor vacío
+    start = start === 0 ? 0 : (start - 1) * 10;  // Corregir el cálculo de start
+    const url = `${URL}/ped/pedido/todos/app/${idUser}/${limit}/${start}/${acceso}/${search}`;
+    console.log('URL generada:', url);  // Log para asegurarse de que la URL es correcta
     try {
-        const response = await fetch(`${URL}/ped/pedido/todos/app/${idUser}/${limit}/${start}/${acceso}/${search}`, {cache: 'no-store'});
+        const response = await fetch(url, {cache: 'no-store'});
         if (response.status !== 200) {
-            throw new Error(`Request failed with status ${response.status}`);
+            const errorData = await response.json();  // Extraer detalles del error si es posible
+            console.error(`Error en la respuesta: ${JSON.stringify(errorData)}`);
+            throw new Error(`Request failed with status ${response.status}, ${JSON.stringify(errorData)}`);
+           // throw new Error(`Request failed with status ${response.status}`);
         }
         const {pedido} = await response.json();
-        
         return pedido;
     } catch (error) {
-        console.error(error);
+        console.error('Error en fetchPedido:', error);
         return []
     }
 };

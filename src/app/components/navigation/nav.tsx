@@ -1,59 +1,60 @@
 'use client'
 import React, { useContext, useEffect, useState } from 'react';
 import { styled, createTheme, ThemeProvider } from '@mui/material/styles';
-import {CssBaseline, Box, Toolbar, List, Typography, Divider, IconButton} from '@mui/material';
+import {CssBaseline, Box, Toolbar, List, Typography, Divider, IconButton,ListItemText} from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
 import {Menu, ChevronLeft, Logout} from '@mui/icons-material';
 import {mainListItems} from './listItems';
 import {DataContext} from '../../context/context'
 import {redirect} from 'next/navigation'
-const drawerWidth = 240;
+import Image from 'next/image';
+const drawerWidth = 190;
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }: any) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(['width', 'margin'], {
+})(({ theme, open }: any) => {
+  const transition = theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
+    duration: open
+      ? theme.transitions.duration.enteringScreen
+      : theme.transitions.duration.leavingScreen,
+  });
+
+  return {
+    zIndex: theme.zIndex.drawer + 1,
+    transition,
+    ...(open && {
+      marginLeft: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
     }),
-  }),
-}));
+  };
+});
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    '& .MuiDrawer-paper': {
-      position: 'relative',
-      whiteSpace: 'nowrap',
-      width: drawerWidth,
-      transition: theme.transitions.create('width', {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      boxSizing: 'border-box',
-      ...(!open && {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-          easing: theme.transitions.easing.sharp,
-          duration: theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing(7),
-        [theme.breakpoints.up('sm')]: {
-          width: theme.spacing(9),
-        },
-      }),
-    },
-  }),
-);
+  ({ theme, open }) => {
+    const transition = theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: open
+        ? theme.transitions.duration.enteringScreen
+        : theme.transitions.duration.leavingScreen,
+    });
 
+    return {
+      '& .MuiDrawer-paper': {
+        position: 'relative',
+        whiteSpace: 'nowrap',
+        width: open ? drawerWidth : theme.spacing(5),
+        transition,
+        boxSizing: 'border-box',
+        overflowX: open ? 'visible' : 'hidden',
+        [theme.breakpoints.up('sm')]: {
+          width: open ? drawerWidth : theme.spacing(7),
+        },
+      },
+    };
+  }
+);
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
@@ -68,7 +69,6 @@ export default function Nav({children}: {children: React.ReactNode}) {
     try {
       const response = await closeSesion()
       redirect('/')
-      console.log(response)
     } catch (error) {
       console.log(error)
     }
@@ -77,7 +77,7 @@ export default function Nav({children}: {children: React.ReactNode}) {
   useEffect(() => {
     const handleResize = () => {
       const screenWidth = window.innerWidth;
-      const adjustedWidth = open ? screenWidth - 240 : screenWidth;
+      const adjustedWidth = open ? screenWidth - 205 : screenWidth;
       setAppBarWidth(`${adjustedWidth}px`);
     };
 
@@ -106,42 +106,29 @@ export default function Nav({children}: {children: React.ReactNode}) {
               aria-label="open drawer"
               onClick={toggleDrawer}
               sx={{
-                marginRight: '36px',
+                marginLeft: '1px',marginRight: '30px',
                 ...(open && { display: 'none' }),
               }}
             >
               <Menu />
             </IconButton>
             <Typography
-              component="h1"
-              variant="h6"
+              component="h3"
+              variant="h5"
               color="inherit"
               noWrap
-              sx={{ flexGrow: 1 }}
+              sx={{ flexGrow: 4 }}
             >
-              
+             Plataforma Gestión de Pedidos Logistica CODETRACK
             </Typography>
             <Typography
-              component="h4"
+              component="h6"
               color="inherit"
               noWrap
             >
               {user?.email}
             </Typography>
-            {
-               user
-               ?<IconButton
-                edge="start"
-                color="inherit"
-                onClick={LogOut}
-                sx={{
-                  marginLeft: '6px',
-                }}
-              >
-                <Logout />
-              </IconButton> 
-           : null}
-           
+           --
           </Toolbar>
         </AppBar>
         {user
@@ -152,8 +139,13 @@ export default function Nav({children}: {children: React.ReactNode}) {
               alignItems: 'center',
               justifyContent: 'flex-end',
               px: [1],
-            }}
-          >
+            }}>
+           {/* <Image 
+               src='./utils/logocode.png'
+               alt="Logo"
+               width={500}
+               height={174}
+            /> */}
             <IconButton onClick={toggleDrawer}>
               <ChevronLeft />
             </IconButton>
@@ -161,8 +153,19 @@ export default function Nav({children}: {children: React.ReactNode}) {
           <Divider />
           <List component="nav">
             {mainListItems}
-            <Divider sx={{ my: 1 }} />
           </List>
+          {
+               user
+               ?<IconButton
+               style={{color: "#666565", textDecoration: "none"}}
+                onClick={LogOut}
+                sx={{marginLeft: '6px'}}
+                component="nav"
+              > 
+                <Logout />
+                 <ListItemText primary={'Cerrar'} />
+              </IconButton> 
+           : null}
         </Drawer>
         :null}
         <Box
@@ -173,7 +176,7 @@ export default function Nav({children}: {children: React.ReactNode}) {
                 ? theme.palette.grey[100]
                 : theme.palette.grey[900],
             flexGrow: 1,
-            height: '100vh',
+            height: 'auto',
             overflow: 'auto',
           }}
         >

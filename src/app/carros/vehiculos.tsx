@@ -74,7 +74,7 @@ export default function VehiculosDialog({carro}: any) {
   return (
     <Fragment>
        <TableContainer component={Paper}>
-      <Breadcrumbs aria-label="breadcrumb" sx={{padding: "15px"}}>
+      <Breadcrumbs aria-label="breadcrumb" sx={{padding: "10px"}}>
           <Button
             type="submit"
             fullWidth

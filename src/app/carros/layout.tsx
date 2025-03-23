@@ -18,12 +18,12 @@ const LayoutRevisiones = ({children}: any): ReactElement => {
             ? theme.palette.grey[100]
             : theme.palette.grey[900],
         flexGrow: 1,
-        height: '100vh',
+        height: 'auto',
         overflow: 'auto',
       }}
     >
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }} component="section">
-          <Grid item xs={12}>
+      <Container maxWidth="xl" sx={{ mt: 2, mb: 2 }} component="section">
+          <Grid item xs={10}>
             {children}
           </Grid>
       </Container>

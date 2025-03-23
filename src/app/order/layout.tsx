@@ -14,7 +14,8 @@ const LoyoutRevisiones = ({children}: {children: React.ReactNode}): ReactElement
   const page = searchParams.get('page');
   
   useEffect(()=>{
-    router.push(`${pathname}?page=${page ??0}&idUser=${idUser}&acceso=${acceso}&search=${search ?? undefined}`);
+    router.push(`${pathname}?page=${page ??0}&idUser=${idUser}&acceso=${acceso}&search=${search ?? ""}`);
+    console.log('Cada cuanto se ejecuta esto?')
   }, [idUser])
   if(!user) redirect('/')
   return(

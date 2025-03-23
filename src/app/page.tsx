@@ -1,7 +1,6 @@
 'use client'
 import React, { useContext, useEffect } from 'react';
 import { CssBaseline, Box, TextField, FormControlLabel, Typography, Avatar, Checkbox, Button, Grid, Container } from '@mui/material';
-
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { redirect } from 'next/navigation';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -10,21 +9,16 @@ import Link from 'next/link';
 
 function Copyright(props: any) {
   return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://codegascolombia.com/">
-        Codegas colombia
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+    <Typography variant="inherit" color="text.secondary" align="center" {...props}>
+      <Link color="text.primary" href="https://codegascolombia.com/">
+      Copyright © Codegas Colombia {new Date().getFullYear()}.
+      </Link>  
     </Typography>
   );
 }
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
-
-
 
 export default function SignIn() {
   const {user, login}: any = useContext(DataContext)
@@ -68,16 +62,16 @@ export default function SignIn() {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
+          <Typography component="h2" variant="h4">
+            Iniciar Sesión
           </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
             <TextField
               margin="normal"
               required
               fullWidth
               id="email"
-              label="Email Address"
+              label="Correo electrónico"
               name="email"
               autoComplete="email"
               autoFocus
@@ -87,31 +81,31 @@ export default function SignIn() {
               required
               fullWidth
               name="password"
-              label="Password"
+              label="Contraseña"
               type="password"
               id="password"
               autoComplete="current-password"
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
+              label="Mantener mi sesión abierta"
             />
             <Button
               type="submit"
               fullWidth
-              variant="contained"
+              variant="outlined"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
+              Iniciar sesión
             </Button>
-            <Grid container>
+            {/* <Grid container>
               <Grid item xs>
                 <Link href="/">
-                    Recordar contraseña?
+                    ¿Recordar contraseña?
                 </Link>
               </Grid>
               
-            </Grid>
+            </Grid> */}
           </Box>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
