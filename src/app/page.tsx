@@ -1,5 +1,5 @@
 'use client'
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect,useState } from 'react';
 import { CssBaseline, Box, TextField, FormControlLabel, Typography, Avatar, Checkbox, Button, Grid, Container } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { redirect } from 'next/navigation';
@@ -17,35 +17,53 @@ function Copyright(props: any) {
   );
 }
 
-// TODO remove, this demo shouldn't need to reset the theme.
+// Tema por Defecto
 const defaultTheme = createTheme();
-
+// Tipos para los datos del usuario
+interface UserData {
+  email: string;
+  password: string;
+}
 export default function SignIn() {
   const {user, login}: any = useContext(DataContext)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
+  // Redirigir si el usuario ya está autenticado
   useEffect(()=>{
     if(user?.email) redirect('/order')
   }, [user])
 
+  // Manejo del envío del formulario
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    const email = data.get('email') as string;
+    const password = data.get('password') as string;
   
-    const dataUser ={
-      email: data.get('email'),
-      password: data.get('password'),
-    };
-    signIn(dataUser)
+      // Validación del correo electrónico
+      if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        setErrorMessage('Por favor, ingrese un correo electrónico válido.');
+        return;}
+
+    const dataUser: UserData = { email, password };
+    signIn(dataUser);
   };
 
-  const signIn = async (dataUser: any) =>{
+  // Función para realizar el inicio de sesión
+  const signIn = async (dataUser: UserData) => {
+    setIsLoading(true);
+    setErrorMessage(null);
     try {
-      const response = await  login(dataUser)
-      redirect('/order')
+      const response = await login(dataUser);
+      redirect('/order');
     } catch (error) {
-      console.log(error)
+      setErrorMessage('Hubo un error al iniciar sesión. Verifica tus credenciales.');
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -64,6 +82,9 @@ export default function SignIn() {
           </Avatar>
           <Typography component="h2" variant="h4">
             Iniciar Sesión
+          </Typography>
+          <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+              {errorMessage}
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
             <TextField
@@ -95,8 +116,9 @@ export default function SignIn() {
               fullWidth
               variant="outlined"
               sx={{ mt: 3, mb: 2 }}
+              disabled={isLoading}
             >
-              Iniciar sesión
+              {isLoading ? 'Cargando...' : 'Iniciar sesión'}
             </Button>
             {/* <Grid container>
               <Grid item xs>

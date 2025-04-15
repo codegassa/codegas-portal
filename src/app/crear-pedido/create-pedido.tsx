@@ -1,8 +1,7 @@
 'use client'
-import React, {useState, useContext} from 'react';
- 
+import React, { useState, useContext, useCallback } from 'react';
 import {Avatar, Box, Button, FormControl, Container, CssBaseline, InputLabel, Grid, MenuItem, Select, TextField, Typography, SelectChangeEvent, Autocomplete} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import BorderColor from '@mui/icons-material/BorderColor';
 import {Snack} from "../components/snackBar"
 import {forma, mes, dia1, dia2, diaSemana, frecuencia} from "../utils/pedido_info"
 import {createPedido} from "../store/fetch-pedido"
@@ -14,9 +13,9 @@ import {DataContext} from '../context/context'
 
 export default function CrearPedido({user, puntos}: any) {
   const {idUser: usuarioCrea}: any = useContext(DataContext)
-
   const router = useRouter();
   const pathname = usePathname();
+
   const [usuarioId, setUsuarioId] = useState('');
   const [search, setSearch] = useState('');
   const [puntoId, setPuntoId] = useState('');
@@ -28,23 +27,26 @@ export default function CrearPedido({user, puntos}: any) {
     dia1: null,
     dia2: null
   });
-
-  const handleChangeSelect = (event: any, value: any) => {
+  const [date, setDate] = useState('')
+  const handleChangeSelect = useCallback((event: any, value: any) => {
     event.preventDefault();
     setUsuarioId(value._id as string);
-    router.push(`${pathname}?search=${search}&idUser=${value._id}`, undefined)
+    router.push(`${pathname}?search=${search}&idUser=${value._id}`, undefined);
 
-    if(event.key === 'Enter') {
-      setSearch(event.target.value)
-      router.push(`${pathname}?search=${event.target.value}`, undefined)
+    if (event.key === 'Enter') {
+      setSearch(event.target.value);
+      router.push(`${pathname}?search=${event.target.value}`, undefined);
     }
-
-  };
-  const handleChangePunto = (event: SelectChangeEvent) => {
+  }, [pathname, search, router]);
+  
+  const handleChangePunto = useCallback((event: SelectChangeEvent) => {
     setPuntoId(event.target.value as string);
-  };
+  }, []);
 
-  const [date, setDate] = useState('')
+  const handleChange = useCallback((prop: string, value: string | null) => {
+    setForm((prevForm) => ({ ...prevForm, [prop]: value }));
+  }, []);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -65,11 +67,7 @@ export default function CrearPedido({user, puntos}: any) {
     if(!newData.forma || !newData.usuarioId || !newData.puntoId ) alert("Llena los campos obligatorios")
     saveData(newData)
   };
-  const handleChange = (prop:string, value: string | null) => {
-    setForm({...form, [prop]: value});
-  };
   
- 
   const saveData = async (data: any) => {
     const {status} = await createPedido(data)
     if (status) {
@@ -77,8 +75,6 @@ export default function CrearPedido({user, puntos}: any) {
       setMessage("Pedido Guardado con exito")
     }
   }
-  console.log(user)
- 
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -91,7 +87,7 @@ export default function CrearPedido({user, puntos}: any) {
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
+          <BorderColor />
         </Avatar>
         <Typography component="h1" variant="h5">
           Nuevo Pedido
@@ -131,7 +127,7 @@ export default function CrearPedido({user, puntos}: any) {
             }
             <Grid item xs={12} sm={12}>
               <FormControl fullWidth>
-                <Date setValueDate={setDate} />
+              <Date value={date} setValueDate={setDate} />
               </FormControl>
             </Grid>
             <Grid item xs={12} sm={12}>
@@ -141,7 +137,7 @@ export default function CrearPedido({user, puntos}: any) {
                   label="Observaciones"
                   name="observaciones"
                   multiline
-                  rows={4}
+                  rows={3}
                 />
               </FormControl>
             </Grid> 

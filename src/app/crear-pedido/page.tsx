@@ -1,12 +1,11 @@
-import React, {useContext} from 'react';
-import {RenderCrearPedido} from "./render-crear-pedido"
-import type {ParamsProps} from "./crear-pedido.types"
+import { RenderCrearPedido } from "./render-crear-pedido";
+import type { ParamsProps } from "./crear-pedido.types";
 
-const ACCESS = 'clientes'
-const LIMIT = 10
+const ACCESS = 'clientes';
+const LIMIT = 100;
 
-export default function CreatePedido({searchParams}: ParamsProps) { 
-    let {page, search, idUser} = searchParams
+export default function CreatePedido({ searchParams }: ParamsProps) { 
+    let { page , search, idUser } = searchParams;
     page = page || 0
     search = search ?? undefined
     

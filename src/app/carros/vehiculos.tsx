@@ -1,11 +1,10 @@
 'use client'
-import react, {Fragment, useState, useContext} from 'react';
+import react, {useState, useContext, useCallback} from 'react';
 import {FormControl, Avatar, RadioGroup, ListItemAvatar, FormControlLabel, Radio, 
   Table, TableContainer, Paper, TableHead, TableRow, TableCell, TableBody, Breadcrumbs, Typography } from '@mui/material';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {Person} from '@mui/icons-material';
 import Button from '@mui/material/Button';
-import Link from "next/link"
 import { blue } from '@mui/material/colors';
 import {Snack} from "../components/snackBar"
 import {addCarPedido} from "../store/fetch-pedido"
@@ -16,12 +15,12 @@ export interface VehiculoProps {
   placa: string;
   centro: string;
   conductor: {
-    nombre: string;  
+  nombre: string;  
   };
 }
 
 export default function VehiculosDialog({carro}: any) {
-   const {idUser} = useContext(DataContext)
+  const {idUser} = useContext(DataContext)
   const [showSnack, setShowSnack] = useState(false);
   const [message, setMessage] = useState("");
   const router = useRouter()
@@ -29,50 +28,57 @@ export default function VehiculosDialog({carro}: any) {
   const placas = searchParams.get('placa') || "";
   const date = searchParams.get('date');
   
-  const asignCar = async (_id: any, placa: any) => {
-    const idPedidoArray = placas.split(",").filter((value: any) => value !== "");
-    await Promise.all(idPedidoArray.map(async (e: any) => {
-      const { status } = await addCarPedido(e, _id, date, idUser);
-      if (status) {
-        setShowSnack(true)
-        setMessage(`Carro ${placa} agregado!`)
-      }
-    }));
-  }
-  const RenderVehiculos = ({data}: any) => {
-    return data.map(({_id, placa, centro, conductor}: VehiculoProps)=>{
-      return(
-        <TableRow key={_id}>
-          <TableCell component="th" scope="row" align="center">
-            <FormControl>
-              <RadioGroup
-                aria-labelledby="demo-controlled-radio-buttons-group"
-                name="controlled-radio-buttons-group"
-                onChange={()=>asignCar(_id,placa)}
-              >
-                <FormControlLabel value="female" control={<Radio />} label="" />
-              </RadioGroup>
-            </FormControl>
-             
-          </TableCell>
-          <TableCell align="center">
-            <ListItemAvatar>
-              <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
-                <Person />
-              </Avatar>
-            </ListItemAvatar>
-          </TableCell>
-          <TableCell align="center">{_id}</TableCell>
-          <TableCell align="center">{placa}</TableCell>
-          <TableCell align="center">{centro}</TableCell>
-          <TableCell align="center">{conductor?.nombre}</TableCell>
-        </TableRow>
-      )
-    })
+  const asignCar = useCallback(async (_id: number, placa: string) => {
+    const idPedidoArray = placas.split(",").filter(value => value !== "");
+    try {
+      await Promise.all(idPedidoArray.map(async (e) => {
+        const { status } = await addCarPedido(e, _id, date, idUser);
+        if (status) {
+          setShowSnack(true);
+          setMessage(`Carro ${placa} agregado!`);
+        }
+      }));
+    } catch (error) {
+      console.error('Error al asignar el carro', error);
+      setShowSnack(true);
+      setMessage('Hubo un error al asignar el carro.');
+    }
+  }, [placas, date, idUser]);
 
-  }
+    // Renderiza cada vehículo en la tabla
+  const RenderVehiculos = ({ data }: { data: VehiculoProps[] }) => (
+      <>
+        {data.map(({ _id, placa, centro, conductor }) => (
+          <TableRow key={_id}>
+            <TableCell component="th" scope="row" align="center">
+              <FormControl>
+                <RadioGroup
+                  aria-labelledby="radio-button-group"
+                  name="controlled-radio-buttons-group"
+                  onChange={() => asignCar(_id, placa)}
+                  onClick={() => router.back()}
+                >
+                  <FormControlLabel value="select" control={<Radio />} label="" />
+                </RadioGroup>
+              </FormControl>
+            </TableCell>
+            <TableCell align="center">
+              <ListItemAvatar>
+                <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
+                  <Person />
+                </Avatar>
+              </ListItemAvatar>
+            </TableCell>
+            <TableCell align="center">{_id}</TableCell>
+            <TableCell align="center">{placa}</TableCell>
+            <TableCell align="center">{centro}</TableCell>
+            <TableCell align="center">{conductor?.nombre}</TableCell>
+          </TableRow>
+        ))}
+      </>
+   );
   return (
-    <Fragment>
+    <>
        <TableContainer component={Paper}>
       <Breadcrumbs aria-label="breadcrumb" sx={{padding: "10px"}}>
           <Button
@@ -86,7 +92,7 @@ export default function VehiculosDialog({carro}: any) {
         <Typography color="#a2a1a1"> Pedido N:  
           {
             placas.includes("%2C")
-            ?placas.split("%2C").filter((value: any) => value !== "").map((e: any)=> `${e} / `)
+            ?placas.split("%2C").filter(value => value !== "").map((e: any)=> `${e} / `)
             :placas
           } 
         </Typography>
@@ -103,13 +109,13 @@ export default function VehiculosDialog({carro}: any) {
           </TableRow>
         </TableHead>
         <TableBody>
-          <RenderVehiculos data={carro} asignCar={asignCar}  />
+          <RenderVehiculos data={carro} />
         </TableBody>
       </Table>
     </TableContainer>   
 
       
       <Snack show={showSnack} setShow={()=>setShowSnack(false)} message={message} />
-    </Fragment>
+    </>
   );
 }

@@ -1,5 +1,5 @@
-'use client' 
-import React,{useState, useEffect, useMemo } from 'react';
+
+import React,{useState, useEffect, useMemo, useCallback } from 'react';
 import { TableRow, TableCell, Box, Collapse, Button, Checkbox, Table, TableBody, TableContainer, TableHead, Typography, Grid, Paper, FormControl, TextField } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import moment from "moment"
@@ -17,25 +17,24 @@ import {AlertDialog} from "../components/alertDialog/alertDialog"
 import Image from "next/image"
 import AlertConfirm from '../components/alertConfirm/alertConfirm';
 
+// Colores de estado
 const {espera, noentregado, innactivo, activo, asignado, otro} = colors
 
-const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fechasolicitud, isCheked,
-  fechaentrega, forma, kilos, valorunitario, placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus, setOpenConfirm}: any) => {
+const RenderTanques = React.memo(({_id, codt, razon_social, cedula, direccion, creado, fechasolicitud, isCheked, fechaentrega, forma, kilos, valorunitario, placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus, setOpenConfirm}: any) => {
   
   const [open, setOpen] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   
   const background = useMemo(() => {
     return estado === "espera" ? espera :
-      estado === "noentregado" ? noentregado :
-      estado === "innactivo" ? innactivo :
-      estado === "activo" && !placa && !entregado ? activo :
-      estado === "activo" && !entregado ? asignado :
-      otro;
+          estado === "noentregado" ? noentregado :
+          estado === "innactivo" ? innactivo :
+          estado === "activo" && !placa && !entregado ? activo :
+          estado === "activo" && !entregado ? asignado : otro;
   }, [estado, placa, entregado]); 
-    console.log('En tabla de Order: ',_id)
+  console.log('En tabla de Order: ',_id)
   
-    return (
+  return (
     <> 
       <TableRow key={_id} sx={{background}}>
             <TableCell align="center">
@@ -79,7 +78,7 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
                     <Table sx={{ minWidth: 750}}>
                       <TableHead>
                         <TableRow>
-                          <TableCell align="center">Solicitud</TableCell>
+                          <TableCell align="center">Tipo</TableCell>
                           <TableCell align="center">Kilos</TableCell>
                           <TableCell align="center">Valor</TableCell>
                           <TableCell align="center">Cedula</TableCell>
@@ -113,7 +112,7 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
           </AlertDialog>
     </>
   )
-}
+})
 
 export default function RenderTable({orders}: any) {
   console.log('En RenderTable',orders)
@@ -151,15 +150,15 @@ export default function RenderTable({orders}: any) {
   }, [orders, newValue])
 
 
-  const addValues = (id: any, event: any) => {
+  const addValues = useCallback((id: any, event: any) => {
     const index = valorWithArray.some(({ _id }) => _id === id);
     if (!index) {
-      setValorWithArray((state) => [...state,{ _id: id}]);
+      setValorWithArray((state) => [...state, { _id: id }]);
     } else {
       setValorWithArray(valorWithArray.filter(({ _id }) => _id !== id));
     }
-
-    const updateOrder = newOrder.map((e: { _id: any; }) => {
+  
+    const updateOrder = newOrder.map((e: { _id: any }) => {
       if (e._id === id) {
         return { ...e, isCheked: event.target.checked };
       }
@@ -167,22 +166,28 @@ export default function RenderTable({orders}: any) {
     });
   
     setNewOrder(updateOrder);
- 
-  };
+  }, [valorWithArray, newOrder]);
 
-  const addValuesAll = async (event: any) => {
-    const data = newOrder.map((e: any)=>{
-      return{
+  const addValuesAll = useCallback(async (event: any) => {
+    const data = newOrder.map((e: any) => {
+      return {
         ...e,
         _id: e._id,
-        isCheked: event.target.checked
-      }
-    })
-    
-    if(event.target.checked) {setValorWithArray(data), setIsCheked(true)}
-    if(!event.target.checked) {setValorWithArray([]), setIsCheked(false)}
-    setNewOrder(data)
-  }
+        isCheked: event.target.checked,
+      };
+    });
+  
+    if (event.target.checked) {
+      setValorWithArray(data);
+      setIsCheked(true);
+    }
+    if (!event.target.checked) {
+      setValorWithArray([]);
+      setIsCheked(false);
+    }
+    setNewOrder(data);
+  }, [newOrder]);
+
   const updateDate = async (date: any, id?: any) => {
     let dataToSend = valorWithArray.map((e: { _id: any; }) => {
       return {
@@ -210,7 +215,7 @@ export default function RenderTable({orders}: any) {
   }
   const updateStatus = async (state: any, id?: any) => {
     let data = valorWithArray.map((e: { _id: any; }) => {
-      console.log('UpdateStatus: ',state)
+      //console.log('Estado Actual: ',state)
       return {
         ...e,
         estado: state,
@@ -263,7 +268,10 @@ export default function RenderTable({orders}: any) {
       router.push(`${pathname}?page=${page}&search=${search}&idUser=${idUser}&acceso=${acceso}&newValue=${pedidoId+200}`, undefined)
     }
   }
-
+  const handleOpenConfirm = (id: any) => {
+    setOpenConfirm(true);
+    setPedidoId(id);
+  };
   
   return(
     <TableContainer component={Paper}>
@@ -316,13 +324,13 @@ export default function RenderTable({orders}: any) {
           </TableHead>
           <TableBody>
           {
-            newOrder.map((e: any, key: string)=> (
-              <RenderTanques {...e} 
+            newOrder.map((fila: any, key: string)=> (
+              <RenderTanques {...fila} 
                 key={key} 
                 addValues={addValues} 
                 updateDate={updateDate}
                 updateStatus={updateStatus}
-                setOpenConfirm={(id: any)=>{setOpenConfirm(true), setPedidoId(id)}}
+                setOpenConfirm={handleOpenConfirm}
               /> 
             ))
           }

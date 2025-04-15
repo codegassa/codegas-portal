@@ -3,7 +3,7 @@ import {FC, useEffect, useContext} from "react"
 import { Table, TableContainer, Paper, TableHead, TableRow, TableCell, TableBody, Breadcrumbs, Typography } from "@mui/material"
 import Link from "next/link"
 import {RenderVehiculos} from "./renderVehiculos"
-import {DataContext} from "../../../context/context"
+
 
 const Vehiculos: FC = ({params}: any) => {
   const {idPedido} = params 

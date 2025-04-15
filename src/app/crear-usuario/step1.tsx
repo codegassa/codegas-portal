@@ -1,5 +1,5 @@
 'use client'
-import React, {useState, useContext} from 'react';
+import React, {useState, useContext,useCallback} from 'react';
 import { Box, Button, FormControl, Container, CssBaseline, InputLabel, Grid, MenuItem, Select, TextField, SelectChangeEvent} from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
 import {Snack} from "../components/snackBar"
@@ -7,6 +7,8 @@ import {accesos, fields, tipos} from "../utils/users_info"
 import {createUser} from "../store/fetch-user"
 import {DataContext} from '../context/context'
 
+// Definimos el tipo de severity
+type SeverityType = 'error' | 'success' | 'warning' | 'info';
 
 export default function Step1({data}: any) {
   const {createUserFirebase}: any = useContext(DataContext)
@@ -15,17 +17,29 @@ export default function Step1({data}: any) {
   const pathname = usePathname()
   const [showSnack, setShowSnack] = useState(false);
   const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("");
+  const [severity, setSeverity] = useState<SeverityType>();
   const handleChangeSelect = (event: SelectChangeEvent) => {
     setIdPadre(event.target.value as string);
   };
 
   const [newAcceso, setNewAcceso] = useState('')
   const [newTipo, setTipo] = useState('')
+  const handleChange = useCallback((event: SelectChangeEvent) => {
+    setNewAcceso(event.target.value as string);}, []);
+  const handleTipo = useCallback((event: SelectChangeEvent) => {
+    setTipo(event.target.value as string);}, []);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    
+      // Convertir 'razon_social' y 'nombre' a mayúsculas y eliminar espacios/saltos de línea
+        const razonSocial = (data.get('razon_social') as string)
+          .toUpperCase()
+          .replace(/\s+/g, ''); // Eliminar todos los espacios y saltos de línea
+        const nombre = (data.get('nombre') as string)
+          .toUpperCase()
+          .replace(/\s+/g, ''); // Eliminar todos los espacios y saltos de línea
+
     try {
       const response = await createUserFirebase(data.get('email'));
       if (typeof response === 'string') {
@@ -53,14 +67,8 @@ export default function Step1({data}: any) {
     } catch (error) {
       console.error(error);
     }
-
   };
-  const handleChange = (event: SelectChangeEvent) => {
-    setNewAcceso(event.target.value as string);
-  };
-  const handleTipo = (event: SelectChangeEvent) => {
-    setTipo(event.target.value as string);
-  };
+  
   const saveData = async (data: any) => {
     const {status, code} = await  createUser(data)
     if (status) {
@@ -70,7 +78,6 @@ export default function Step1({data}: any) {
       router.push(`${pathname}?userId=${code}`, undefined)
     }
   }
-
 
   return (
     <Container component="main" maxWidth="xs">
@@ -82,8 +89,7 @@ export default function Step1({data}: any) {
           flexDirection: 'column',
           alignItems: 'center',
         }}
-      >
-       
+      >    
         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 2
          }}>
           <Grid container spacing={1}>

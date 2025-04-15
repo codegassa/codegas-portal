@@ -6,12 +6,12 @@ import {DataContext} from "../context/context"
 
  
 const LoyoutRevisiones = ({children}: {children: React.ReactNode}): ReactElement => {
-  const {user, idUser, acceso}: any = useContext(DataContext)
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  let search = searchParams.get('search');
-  const page = searchParams.get('page');
+const {user, idUser, acceso}: any = useContext(DataContext)
+const router = useRouter();
+const pathname = usePathname();
+const searchParams = useSearchParams();
+let search = searchParams.get('search');
+const page = searchParams.get('page');
   
   useEffect(()=>{
     router.push(`${pathname}?page=${page ??0}&idUser=${idUser}&acceso=${acceso}&search=${search ?? ""}`);

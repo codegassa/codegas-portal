@@ -1,8 +1,8 @@
-import './globals.css'
 import { openSans } from './utils/fonts';
 import { Inter } from 'next/font/google'
 import Nav from './components/navigation/nav'
 import {DataProvider} from './context/context';
+
 const inter = Inter({ subsets: ['latin-ext'] })
 
 export const metadata = {

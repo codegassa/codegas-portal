@@ -5,7 +5,6 @@ import { getUserByUid } from "../store/fetch-user";
 import { auth } from "../utils/firebase/firebase-config";
 import {SignInProps, DataProps} from "./types"
  
-
 const DataContext = createContext<DataProps>({
   idUser: null,
   acceso: null,
@@ -13,78 +12,110 @@ const DataContext = createContext<DataProps>({
   login: async () => {},
   closeSesion: async () => {},
   createUserFirebase: async () => {
-    throw new Error("createUserFirebase is not implemented");
+    throw new Error("createUserFirebase not implemented");
   },
 });
+
+const getFromLocalStorage = (key: string) => {
+  if (typeof window === "undefined") return null;
+  const item = localStorage.getItem(key);
+  try {
+    return item ? JSON.parse(item) : null;
+  } catch {
+    return item;
+  }
+};
+
+const setToLocalStorage = (key: string, value: any) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value));
+  }
+};
+
+const removeFromLocalStorage = (keys: string[]) => {
+  if (typeof window !== "undefined") {
+    keys.forEach((key) => localStorage.removeItem(key));
+  }
+};
 
 const DataProvider = ({ children }: { children: React.ReactNode }) => {
   const [userData, setUser] = useState<User | null>(null);
   const [idUser, setIdUser] = useState<string | null>(null);
   const [acceso, setAcceso] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const listenAuth = (user: User | null) => {
-    if (typeof window !== "undefined" && localStorage.getItem("user")) {
-      setUser(localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : user);
-      setIdUser(localStorage.getItem("idUser") ? JSON.parse(localStorage.getItem("idUser")!) : idUser);
-      setAcceso(localStorage.getItem("acceso") ? localStorage.getItem("acceso")! : acceso);
-    } else {
-      setUser(user);
-    }
-  };
-  
   useEffect(() => {
-    const subscriber = onAuthStateChanged(auth, listenAuth);
-    return () => {
-      subscriber(); // unsubscribe on unmount
-    };
+    const storedUser = getFromLocalStorage("user");
+    const storedIdUser = getFromLocalStorage("idUser");
+    const storedAcceso = getFromLocalStorage("acceso");
+
+    if (storedUser) setUser(storedUser);
+    if (storedIdUser) setIdUser(storedIdUser);
+    if (storedAcceso) setAcceso(storedAcceso);
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+        setIdUser(null);
+        setAcceso(null);
+      }
+    });
+
+    setLoading(false);
+    return () => unsubscribe();
   }, []);
 
-  const data: DataProps = {
-    idUser: idUser ? idUser : typeof window !== "undefined" ? localStorage.getItem("idUser") : null,
-    acceso: acceso ? acceso : typeof window !== "undefined" ? localStorage.getItem("acceso") : null,
-    user: userData,
-    login: async ({ email, password }: SignInProps) => {
-      try {
-        const { user } = await signInWithEmailAndPassword(auth, email, password);
-        const { _id, acceso } = await getUserByUid(user.uid);
-    
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(user));
-          localStorage.setItem("idUser", JSON.stringify(_id));
-          localStorage.setItem("acceso", acceso);
-        }
-      
-        setUser(user);
-        setIdUser(_id);
-        setAcceso(acceso);
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    closeSesion: async () => {
-      try {
-        await signOut(auth);
-        setUser(null);
-        localStorage.removeItem("user");
-        localStorage.removeItem("idUser");
-        localStorage.removeItem("acceso");
-      } catch (error) {
-        console.error(error);
-      }
-    },
-    createUserFirebase: async (email: string) => {
-      try {
-        const { user } = await createUserWithEmailAndPassword(auth, email, "aef*/aef");
-        return user;
-      } catch (error) {
-        if (error instanceof Error) {
-          return (error as { code?: string }).code || "unknown error";
-        } else {
-          return "unknown error";
-        }
-      }
+  const login = async ({ email, password }: SignInProps) => {
+    try {
+      const { user } = await signInWithEmailAndPassword(auth, email, password);
+      const { _id, acceso } = await getUserByUid(user.uid);
+
+      setToLocalStorage("user", user);
+      setToLocalStorage("idUser", _id);
+      setToLocalStorage("acceso", acceso);
+
+      setUser(user);
+      setIdUser(_id);
+      setAcceso(acceso);
+    } catch (error) {
+      console.error("Login error:", error);
     }
   };
+
+  const closeSesion = async () => {
+    try {
+      await signOut(auth);
+      setUser(null);
+      setIdUser(null);
+      setAcceso(null);
+      removeFromLocalStorage(["user", "idUser", "acceso"]);
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
+  };
+
+  const createUserFirebase = async (email: string) => {
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email, "aef*/aef");
+      return user;
+    } catch (error: any) {
+      return error?.code || "unknown error";
+    }
+  };
+
+  const data: DataProps = {
+    user: userData,
+    idUser,
+    acceso,
+    login,
+    closeSesion,
+    createUserFirebase,
+  };
+
+  // Mostrar loading (evita error de hidratación)
+  if (loading) return null;
 
   return <DataContext.Provider value={data}>{children}</DataContext.Provider>;
 };

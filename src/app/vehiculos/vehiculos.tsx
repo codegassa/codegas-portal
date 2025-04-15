@@ -1,5 +1,5 @@
 'use client'
-import react, {Fragment, useState} from 'react';
+import react, { useState} from 'react';
 import {Button, Avatar, List, ListItemAvatar, Checkbox, TableCell, TableRow} from '@mui/material';
 import {Person, Add} from '@mui/icons-material';
 import {addCarPedido} from "../store/fetch-pedido"
@@ -25,8 +25,9 @@ export default function VehiculosDialog({_id, placa, centro, conductor, idPedido
     }
   }
   return (
-    <Fragment>
+    <>
       <TableRow>
+        Esta es vehiculos
         <TableCell component="th" scope="row" align="center">
           <Checkbox
             // checked={checked}
@@ -47,6 +48,6 @@ export default function VehiculosDialog({_id, placa, centro, conductor, idPedido
         <TableCell align="center">{conductor?.nombre}</TableCell>
       </TableRow>
       <Snack show={showSnack} setShow={()=>setShowSnack(false)} message={message} />
-    </Fragment>
+    </>
   );
 }

@@ -8,7 +8,7 @@ import {Menu, ChevronLeft, Logout} from '@mui/icons-material';
 import {mainListItems} from './listItems';
 import {DataContext} from '../../context/context'
 import {redirect} from 'next/navigation'
-import Image from 'next/image';
+
 const drawerWidth = 190;
 
 const AppBar = styled(MuiAppBar, {
@@ -133,22 +133,12 @@ export default function Nav({children}: {children: React.ReactNode}) {
         </AppBar>
         {user
         ?<Drawer variant="permanent" open={open}>
-          <Toolbar
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
-              px: [1],
-            }}>
-           {/* <Image 
-               src='./utils/logocode.png'
-               alt="Logo"
-               width={500}
-               height={174}
-            /> */}
-            <IconButton onClick={toggleDrawer}>
-              <ChevronLeft />
-            </IconButton>
+          <Toolbar>
+            <img
+              src='/images/logocode.webp'
+              width={150}
+              alt='Logo Codegas'
+              onClick={toggleDrawer}/>
           </Toolbar>
           <Divider />
           <List component="nav">
@@ -157,10 +147,9 @@ export default function Nav({children}: {children: React.ReactNode}) {
           {
                user
                ?<IconButton
-               style={{color: "#666565", textDecoration: "none"}}
+                style={{color: "#666565", textDecoration: "none"}}
                 onClick={LogOut}
-                sx={{marginLeft: '6px'}}
-                component="nav"
+                sx={{marginLeft: '8px'}}
               > 
                 <Logout />
                  <ListItemText primary={'Cerrar'} />

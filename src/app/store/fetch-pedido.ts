@@ -12,7 +12,7 @@ export const fetchPedido = async (idUser: any, start: any, search: string, acces
         }
     // Asegurarse de que 'search' y 'start' estén bien definidos
     search = search || '';  // Si search es undefined o null, asigna un valor vacío
-    start = start === 0 ? 0 : (start - 1) * 10;  // Corregir el cálculo de start
+    start = (start > 0) ? (start - 1) * 10 : 0; 
     const url = `${URL}/ped/pedido/todos/app/${idUser}/${limit}/${start}/${acceso}/${search}`;
     console.log('URL generada:', url);  // Log para asegurarse de que la URL es correcta
     try {
@@ -21,7 +21,6 @@ export const fetchPedido = async (idUser: any, start: any, search: string, acces
             const errorData = await response.json();  // Extraer detalles del error si es posible
             console.error(`Error en la respuesta: ${JSON.stringify(errorData)}`);
             throw new Error(`Request failed with status ${response.status}, ${JSON.stringify(errorData)}`);
-           // throw new Error(`Request failed with status ${response.status}`);
         }
         const {pedido} = await response.json();
         return pedido;

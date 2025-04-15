@@ -3,7 +3,6 @@ import * as React from 'react';
 import {ListItemIcon, ListItemButton, ListItemText} from '@mui/material/';
 import {Dashboard, Map, People, AssignmentTurnedIn, PropaneTank, VerifiedUser, BorderColor, FireTruck, ShoppingBag,} from '@mui/icons-material/';
 import Link from 'next/link'
-import { usePathname } from 'next/navigation';
 const menuItems = [
   {link: "zonas", text: "Zonas", icon: <Map />},
   {link: "tanques", text: "Tanques", icon: <FireTruck/>},

@@ -1,14 +1,20 @@
 'use client';
-import react, { ReactElement, useContext, useState } from 'react';
-import { Container, Grid, Box, Paper} from '@mui/material';
-import { redirect } from 'next/navigation';
-
+import React, { useContext, useEffect, ReactElement } from 'react';
+import { Container, Grid, Box } from '@mui/material';
+import { redirect, useRouter } from 'next/navigation';
 import {DataContext} from "../context/context"
 
  
-const LayoutRevisiones = ({children}: any): ReactElement => {
-  const {user, login}: any = useContext(DataContext)
-  if(!user) redirect('/')
+const LayoutRevisiones = ({ children }: { children: ReactElement }): ReactElement => {
+  const { user } = useContext(DataContext);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/'); // Redirige a la página de inicio si no hay usuario
+    }
+  }, [user, router]); // Depende de `user` y `router`
+
   return(
     <Box
       component="main"
@@ -23,9 +29,11 @@ const LayoutRevisiones = ({children}: any): ReactElement => {
       }}
     >
       <Container maxWidth="xl" sx={{ mt: 2, mb: 2 }} component="section">
-          <Grid item xs={10}>
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
             {children}
           </Grid>
+        </Grid>
       </Container>
     </Box>
   )

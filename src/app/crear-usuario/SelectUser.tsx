@@ -2,12 +2,12 @@
 import React, {useState} from 'react';
  
 import {Avatar, Box, Container, CssBaseline, Typography,  Stepper, Step, StepLabel, Button} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import People from '@mui/icons-material/People';
 import Step1 from "./step1"
 import Step2 from "./step2"
 
 
-const steps = ['Datos Generales', 'Ubicación Entrega'];
+const steps = ['Información Cliente', 'Ubicación Entrega'];
 
 export default function SelectUser({data, userId, zona, puntos}: any) {
   const [activeStep, setActiveStep] = useState(0);
@@ -42,7 +42,7 @@ export default function SelectUser({data, userId, zona, puntos}: any) {
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
+          <People />
         </Avatar>
         <Typography component="h2" variant="h5">
           Nuevo Usuario
