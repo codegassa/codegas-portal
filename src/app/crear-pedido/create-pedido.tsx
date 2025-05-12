@@ -1,18 +1,20 @@
 'use client'
 import React, { useState, useContext, useCallback } from 'react';
-import {Avatar, Box, Button, FormControl, Container, CssBaseline, InputLabel, Grid, MenuItem, Select, TextField, Typography, SelectChangeEvent, Autocomplete} from '@mui/material';
+import {
+  Avatar, Box, Button, FormControl, Container, CssBaseline, InputLabel, Grid, MenuItem,
+  Select, TextField, Typography, Autocomplete, Paper, Divider, SelectChangeEvent
+} from '@mui/material';
 import BorderColor from '@mui/icons-material/BorderColor';
-import {Snack} from "../components/snackBar"
-import {forma, mes, dia1, dia2, diaSemana, frecuencia} from "../utils/pedido_info"
-import {createPedido} from "../store/fetch-pedido"
+import { Snack } from "../components/snackBar";
+import { forma, mes, dia1, dia2, diaSemana, frecuencia } from "../utils/pedido_info";
+import { createPedido } from "../store/fetch-pedido";
 import { usePathname, useRouter } from 'next/navigation';
-import {Date} from "../components/date"
+import { Date } from "../components/date";
 import moment from 'moment';
-import {DataContext} from '../context/context'
+import { DataContext } from '../context/context';
 
-
-export default function CrearPedido({user, puntos}: any) {
-  const {idUser: usuarioCrea}: any = useContext(DataContext)
+export default function CrearPedido({ user, puntos }: any) {
+  const { idUser: usuarioCrea }: any = useContext(DataContext);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -21,35 +23,37 @@ export default function CrearPedido({user, puntos}: any) {
   const [puntoId, setPuntoId] = useState('');
   const [showSnack, setShowSnack] = useState(false);
   const [message, setMessage] = useState("");
+  const [date, setDate] = useState('');
   const [form, setForm] = useState({
     forma: null,
     frecuencia: null,
     dia1: null,
     dia2: null
   });
-  const [date, setDate] = useState('')
-  const handleChangeSelect = useCallback((event: any, value: any) => {
-    event.preventDefault();
-    setUsuarioId(value._id as string);
-    router.push(`${pathname}?search=${search}&idUser=${value._id}`, undefined);
-
-    if (event.key === 'Enter') {
-      setSearch(event.target.value);
-      router.push(`${pathname}?search=${event.target.value}`, undefined);
-    }
-  }, [pathname, search, router]);
-  
-  const handleChangePunto = useCallback((event: SelectChangeEvent) => {
-    setPuntoId(event.target.value as string);
-  }, []);
 
   const handleChange = useCallback((prop: string, value: string | null) => {
     setForm((prevForm) => ({ ...prevForm, [prop]: value }));
   }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleChangeSelect = useCallback((event: any, value: any) => {
+    event.preventDefault();
+    if(value){
+    setUsuarioId(value._id as any);
+    router.push(`${pathname}?search=${search}&idUser=${value._id}`,undefined);
+    if(event.key === 'Enter') {
+      setSearch(event.target.value)
+      router.push(`${pathname}?search=${event.target.value}`, undefined)
+    }} else { setUsuarioId("");}
+  }, [pathname, search, router]);
+
+  const handleChangePunto = (event: SelectChangeEvent) => {
+    setPuntoId(event.target.value as string);
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+
     const newData = {
       forma: data.get('forma'),
       cantidadKl: Number(data.get('cantidadKl')),
@@ -58,16 +62,17 @@ export default function CrearPedido({user, puntos}: any) {
       usuarioId,
       puntoId: Number(data.get('puntoId')),
       observacion: data.get('observaciones'),
-      usuarioCrea, 
+      usuarioCrea,
       frecuencia: data.get('frecuencia'),
       dia1: data.get('dia1'),
       dia2: data.get('dia2')
     };
-    
-    if(!newData.forma || !newData.usuarioId || !newData.puntoId ) alert("Llena los campos obligatorios")
-    saveData(newData)
+
+    if (!newData.forma || !newData.usuarioId || !newData.puntoId) {
+      alert("Llena los campos obligatorios");  
+      saveData(newData)
+    }
   };
-  
   const saveData = async (data: any) => {
     const {status} = await createPedido(data)
     if (status) {
@@ -75,234 +80,179 @@ export default function CrearPedido({user, puntos}: any) {
       setMessage("Pedido Guardado con exito")
     }
   }
+
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="md">
       <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <BorderColor />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Nuevo Pedido
-        </Typography>
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={12}>
+      <Paper elevation={3} sx={{ padding: 4, mt: 6, borderRadius: 4 }}>
+        <Box display="flex" alignItems="center" gap={2} mb={3}>
+          <Avatar sx={{ bgcolor: 'primary.main' }}>
+            <BorderColor />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+            Crear Nuevo Pedido
+          </Typography>
+        </Box>
+
+        <Divider sx={{ mb: 3 }} />
+
+        <Box component="form" noValidate onSubmit={handleSubmit}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
               <FormControl fullWidth>
                 <InputLabel id="forma">Forma</InputLabel>
                 <Select
-                  required
                   name="forma"
-                  labelId="forma"
-                  id="forma"
                   value={form?.forma}
+                  onChange={(e) => handleChange('forma', e.target.value)}
                   label="Forma"
-                  onChange={({target})=>handleChange('forma', target.value)}
+                  required
                 >
-                  {
-                    forma.map(({value, label})=> <MenuItem value={value} key={value}>{label}</MenuItem>)
-                  }
+                  {forma.map(({ value, label }) => (
+                    <MenuItem value={value} key={value}>{label}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
-            {
-              (form?.forma && form?.forma!=="lleno")
-              &&<Grid item xs={12}>
+
+            {form.forma && form.forma !== "lleno" && (
+              <Grid item xs={12} sm={6}>
                 <TextField
-                  required
                   fullWidth
-                  name={form?.forma === 'monto' ?'cantidadPrecio' :'cantidadKl'}
-                  label={form?.forma === 'monto' ?'cantidadPrecio' :'cantidadKl'}
-                  type={form?.forma === 'monto' ?'cantidadPrecio' :'cantidadKl'}
-                  id={form?.forma === 'monto' ?'cantidadPrecio' :'cantidadKl'}
+                  required
+                  name={form.forma === 'monto' ? 'cantidadPrecio' : 'cantidadKl'}
+                  label={form.forma === 'monto' ? 'Monto' : 'Cantidad (Kg)'}
+                  type={form.forma === 'monto' ? 'Monto' : 'Cantidad (Kg)'}
+                  id={form.forma === 'monto' ? 'Monto' : 'Cantidad (Kg)'}
                 />
               </Grid>
-            }
-            <Grid item xs={12} sm={12}>
-              <FormControl fullWidth>
+            )}
+
+            <Grid item xs={12} sm={6}>
               <Date value={date} setValueDate={setDate} />
-              </FormControl>
             </Grid>
-            <Grid item xs={12} sm={12}>
-              <FormControl fullWidth>
-                <TextField
-                  id="Observaciones"
-                  label="Observaciones"
-                  name="observaciones"
-                  multiline
-                  rows={3}
-                />
-              </FormControl>
-            </Grid> 
-          <Grid item xs={12} sm={12}>
-            <FormControl fullWidth>
+
+            <Grid item xs={12}>
+              <TextField
+                id="Observaciones"
+                label="Observaciones"
+                name="observaciones"
+                fullWidth
+                multiline
+                rows={3}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
               <Autocomplete
-                  sx={{ width: 400 }}
-                  freeSolo
-                  id="usuarioId"
-                  disableClearable
-                  options={user}
-                  getOptionLabel={(option) => option.razon_social?? ""}
-                  onChange={handleChangeSelect}
-                  // onClose={()=>alert("close")}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Buscar Usuarios..."
-                      InputProps={{
-                        ...params.InputProps,
-                        type: 'search',
-                        // onKeyDown: searchUser,
-                      }}
-                    />
-                  )}
-                />
-            </FormControl>
-          </Grid> 
-              {
-                puntos && puntos.length!==0
-                &&<Grid item xs={12} sm={12}>
-                  <FormControl fullWidth>
-                    <InputLabel id="puntoId">Punto</InputLabel>
-                    <Select
-                      required
-                      labelId="puntoId"
-                      id="puntoId"
-                      name="puntoId"
-                      value={puntoId}
-                      label="Punto"
-                      onChange={handleChangePunto}
-                    >
-                      {
-                          puntos.map(({_id, direccion}: any)=> <MenuItem value={_id} key={_id}>{direccion}</MenuItem>)
-                      }
-                    </Select>
-                  </FormControl>
-                </Grid> 
-              }
-              {
-                puntos && puntos.length===0
-                &&<p>este usuario no tiene Puntos</p>
-              }
-          
-              <Grid item xs={12} sm={12}>
+                freeSolo
+                id="usuarioId"
+                options={user}
+                getOptionLabel={(option) => option.razon_social?? ''}
+                onChange={handleChangeSelect}
+                renderInput={(params) => (
+                  <TextField {...params} label="Buscar usuario"  InputProps={{
+                    ...params.InputProps,
+                    type: 'search',
+                    // onKeyDown: searchUser,
+                  }}/>
+                )}
+              />
+            </Grid>
+
+            {puntos && puntos.length!==0  
+            && (<Grid item xs={12} sm={6}>
                 <FormControl fullWidth>
-                  <InputLabel id="forma">Frecuencia</InputLabel>
+                  <InputLabel id="puntoId">Punto</InputLabel>
                   <Select
+                    name="puntoId"
+                    labelId="puntoId"
+                    value={puntoId}
+                    label="Punto"
+                    onChange={handleChangePunto}
                     required
-                    name="frecuencia"
-                    labelId="frecuencia"
-                    id="frecuencia"
-                    value={form?.frecuencia}
-                    label="Frecuencia"
-                    onChange={({target})=>handleChange('frecuencia', target.value)}
                   >
-                    {
-                      frecuencia.map(({value, label})=> <MenuItem value={value} key={value}>{label}</MenuItem>)
-                    }
+                    {puntos.map(({ _id, direccion }: any) => (
+                      <MenuItem value={_id} key={_id}>{direccion}</MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
-
-              {
-                form?.frecuencia==='mensual'
-                ?<Grid item xs={12} sm={12}>
-                  <FormControl fullWidth>
-                    <InputLabel id="forma">Dia</InputLabel>
-                    <Select
-                      required
-                      name="dia1"
-                      labelId="dia1"
-                      id="dia1"
-                      value={form?.dia1}
-                      label="Dia"
-                      onChange={({target})=>handleChange('dia1', target.value)}
-                    >
-                      {
-                        mes.map(e=> <MenuItem value={e} key={e}>{e}</MenuItem>)
-                      }
-                    </Select>
-                  </FormControl>
-                </Grid>
-                :form?.frecuencia==='quincenal'
-                ?<>
-                  <Grid item xs={12} sm={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="forma">Dia 1</InputLabel>
-                      <Select
-                        required
-                        name="dia1"
-                        labelId="dia1"
-                        id="dia1"
-                        value={form?.dia1}
-                        label="Dia 1"
-                        onChange={({target})=>handleChange('dia1', target.value)}
-                      >
-                        {
-                          dia1.map(e=> <MenuItem value={e} key={e}>{e}</MenuItem>)
-                        }
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                  <Grid item xs={12} sm={12}>
-                      <FormControl fullWidth>
-                        <InputLabel id="forma">Dia 2</InputLabel>
-                        <Select
-                          required
-                          name="dia2"
-                          labelId="dia2"
-                          id="dia2"
-                          value={form?.dia2}
-                          label="Dia 2"
-                          onChange={({target})=>handleChange('dia2', target.value)}
-                        >
-                          {
-                            dia2.map(e=> <MenuItem value={e} key={e}>{e}</MenuItem>)
-                          }
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                  </>
-                :form?.frecuencia==='semanal'
-                &&<Grid item xs={12} sm={12}>
-                    <FormControl fullWidth>
-                      <InputLabel id="forma">Dia 1</InputLabel>
-                      <Select
-                        required
-                        name="dia1"
-                        labelId="dia1"
-                        id="dia1"
-                        value={form?.dia1}
-                        label="Dia 1"
-                        onChange={({target})=>handleChange('dia1', target.value)}
-                      >
-                        {
-                          diaSemana.map(({value, label})=> <MenuItem value={value} key={value}>{label}</MenuItem>)
-                        }
-                      </Select>
-                    </FormControl>
-                  </Grid>
+            )}
+             {
+                puntos && puntos.length===0
+                &&<p>este usuario no tiene Puntos</p>
               }
-              
+
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel id="frecuencia">Frecuencia</InputLabel>
+                <Select
+                  name="frecuencia"
+                  value={form?.frecuencia}
+                  displayEmpty
+                  label="Frecuencia"
+                  onChange={({target}) => handleChange('frecuencia', target.value)}
+                >
+                  {frecuencia.map(({ value, label }) => (
+                    <MenuItem value={value} key={value}>{label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            Guardar
-          </Button>
+
+            {form.frecuencia === 'mensual' && (
+              <Grid item xs={12} sm={6}>
+                <SelectDia name="dia1" label="Día" items={mes} value={form.dia1} onChange={handleChange} />
+              </Grid>
+            )}
+
+            {form.frecuencia === 'quincenal' && (
+              <>
+                <Grid item xs={12} sm={6}>
+                  <SelectDia name="dia1" label="Día 1" items={dia1} value={form.dia1} onChange={handleChange} />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <SelectDia name="dia2" label="Día 2" items={dia2} value={form.dia2} onChange={handleChange} />
+                </Grid>
+              </>
+            )}
+
+            {form.frecuencia === 'semanal' && (
+              <Grid item xs={12} sm={6}>
+                <SelectDia name="dia1" label="Día" items={diaSemana} value={form.dia1} onChange={handleChange} />
+              </Grid>
+            )}
+
+            <Grid item xs={12}>
+              <Button type="submit" fullWidth variant="contained" size="large">
+                Guardar
+              </Button>
+            </Grid>
+          </Grid>
         </Box>
-      </Box>
-      <Snack show={showSnack} setShow={()=>setShowSnack(false)} message={message} />
+      </Paper>
+      <Snack show={showSnack} setShow={() => setShowSnack(false)} message={message} />
     </Container>
+  );
+}
+
+function SelectDia({ name, label, items, value, onChange }: any) {
+  return (
+    <FormControl fullWidth>
+      <InputLabel id={name}>{label}</InputLabel>
+      <Select
+        name={name}
+        value={value || ''}
+        label={label}
+        onChange={(e) => onChange(name, e.target.value)}
+      >
+        {items.map((item: any) => (
+          <MenuItem value={item.value || item} key={item.value || item}>
+            {item.label || item}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 }

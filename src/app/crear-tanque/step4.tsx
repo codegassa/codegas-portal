@@ -83,7 +83,7 @@ export default function Step4({ tanqueId, alerts }: { tanqueId: any; alerts: any
         }}
       >
         {renderAlertsTable(alertList)}
-        <Button color="primary" startIcon={<AddIcon />} onClick={() => setShowDialog(true)}>
+        <Button color="secondary" startIcon={<AddIcon />} onClick={() => setShowDialog(true)}>
           Agregar
         </Button>
       </Box>

@@ -15,7 +15,7 @@ const page = searchParams.get('page');
   
   useEffect(()=>{
     router.push(`${pathname}?page=${page ??0}&idUser=${idUser}&acceso=${acceso}&search=${search ?? ""}`);
-    console.log('Cada cuanto se ejecuta esto?')
+    console.log('Se ejecuta esto en layout')
   }, [idUser])
   if(!user) redirect('/')
   return(
@@ -25,10 +25,7 @@ const page = searchParams.get('page');
         backgroundColor: (theme) =>
           theme.palette.mode === 'light'
             ? theme.palette.grey[100]
-            : theme.palette.grey[900],
-        flexGrow: 1,
-        height: 'auto', //160vh
-        overflow: 'auto',
+            : theme.palette.grey[400],
       }}
     >
       <Container maxWidth="xl" sx={{ mt: 1, mb: 1 }} component="section">

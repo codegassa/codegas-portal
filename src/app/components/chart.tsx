@@ -46,7 +46,7 @@ export default function Chart() {
               position="left"
               style={{
                 textAnchor: 'middle',
-                fill: theme.palette.text.primary,
+                fill: theme.palette.text.secondary,
                 ...theme.typography.body1,
               }}
             >
@@ -57,7 +57,7 @@ export default function Chart() {
             isAnimationActive={false}
             type="monotone"
             dataKey="amount"
-            stroke={theme.palette.primary.main}
+            stroke={theme.palette.secondary.main}
             dot={false}
           />
         </LineChart>

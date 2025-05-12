@@ -10,7 +10,7 @@ const Revisiones = ({searchParams}: any): ReactElement => {
 
   return (
     <>
-      <InputSearch search={search} />
+      <InputSearch />
       {RenderRevisiones({limit, search, page}) }
     </>
   )

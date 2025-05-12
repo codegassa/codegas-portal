@@ -1,7 +1,8 @@
 'use client'
 import React, { useContext, useEffect,useState } from 'react';
-import { CssBaseline, Box, TextField, FormControlLabel, Typography, Avatar, Checkbox, Button, Grid, Container } from '@mui/material';
+import { CssBaseline, Box, TextField, FormControlLabel, Typography, Checkbox, Button, Container, Grid } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import { redirect } from 'next/navigation';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {DataContext} from "./context/context"
@@ -9,9 +10,9 @@ import Link from 'next/link';
 
 function Copyright(props: any) {
   return (
-    <Typography variant="inherit" color="text.secondary" align="center" {...props}>
-      <Link color="text.primary" href="https://codegascolombia.com/">
-      Copyright © Codegas Colombia {new Date().getFullYear()}.
+    <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}{...props}>
+      <Link href="https://codegascolombia.com/" color="inherit">
+      Copyright © Codegas Colombia {new Date().getFullYear()}
       </Link>  
     </Typography>
   );
@@ -67,67 +68,95 @@ export default function SignIn() {
 
   return (
     <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
+      <Container component="main" maxWidth="xs" sx={{ height: '92vh', display: 'flex', flexDirection: 'column' }}>
         <CssBaseline />
         <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
+          sx={{ 
+            marginTop: 10,
+            backgroundColor: 'background.paper',
+            padding: 4,
+            borderRadius: 2,
+            boxShadow: 3,
           }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h2" variant="h4">
-            Iniciar Sesión
+          >
+          <Typography component="h1" variant="h5" align="center" gutterBottom color='#555'>
+            Inicie sesión para continuar.
           </Typography>
-          <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+            {errorMessage && (
+            <Typography color="error" variant="body2" align="center" sx={{ mb: 2 }}>
               {errorMessage}
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Correo electrónico"
-              name="email"
-              autoComplete="email"
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Contraseña"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Mantener mi sesión abierta"
-            />
+            </Typography>
+            )}        
+          <Box component="form" noValidate onSubmit={handleSubmit}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Correo electrónico"
+            name="email"
+            autoComplete="email"
+            autoFocus
+            InputProps={{
+              startAdornment: (
+                <Box component="span" sx={{ mr: 1 }}>
+                  <AlternateEmailIcon color="action" fontSize="small" />
+                </Box>
+              ),
+            }}
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Contraseña"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            InputProps={{
+              startAdornment: (
+                <Box component="span" sx={{ mr: 1 }}>
+                  <LockOutlinedIcon color="action" fontSize="small" />
+                </Box>
+              ),
+            }}
+          />
+          <FormControlLabel
+            control={<Checkbox value="remember" color="primary" />}
+            label="Mantener mi sesión abierta"
+            color='#FFF'
+            sx={{ mt: 1}}
+          />
             <Button
               type="submit"
               fullWidth
-              variant="outlined"
+              variant="contained"
+              color="primary"
               sx={{ mt: 3, mb: 2 }}
               disabled={isLoading}
             >
               {isLoading ? 'Cargando...' : 'Iniciar sesión'}
             </Button>
-            {/* <Grid container>
-              <Grid item xs>
-                <Link href="/">
-                    ¿Recordar contraseña?
-                </Link>
-              </Grid>
-              
-            </Grid> */}
+            <Grid container sx={{ mt: 1, mb: 1 }}>
+            <Grid item xs />
+            <Grid item>
+              <Link href="/forgot-password" passHref legacyBehavior>
+                <Typography
+                  variant="body2"
+                  component="a"
+                  sx={{
+                    color: 'primary.main',
+                    textDecoration: 'none',
+                    fontWeight: 500,
+                    '&:hover': { textDecoration: 'underline' },
+                  }}
+                >
+                  ¿Olvidaste tu contraseña?
+                </Typography>
+              </Link>
+            </Grid>
+          </Grid>
           </Box>
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />

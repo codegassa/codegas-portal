@@ -1,6 +1,6 @@
 'use client' 
-import { ChangeEvent, KeyboardEvent, useEffect, useState } from 'react';
-import { TableRow, TableCell, Checkbox, FormControl, InputLabel, InputAdornment, OutlinedInput, Paper, Table, TableBody, TableContainer, TableHead } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { TableRow, TableCell, Checkbox, FormControl, InputLabel, InputAdornment, OutlinedInput, Paper, Table, TableBody, TableContainer, TableHead, Box, Tooltip, Typography, Grid } from '@mui/material';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {Snack} from "../components/snackBar"
 import {ChangeValorUnitario, ChangeValorUnitarioAll, ChangeValorUnitarioSelected} from "../store/fetch-zona"
@@ -39,24 +39,66 @@ const RenderZonas = ({zona, updateValor, addValues}: any) => {
   return ( 
     zona.map(({_id, codt, razon_social, nombrezona, direccion, nombre, valorunitario, idcliente, isCheked}: any, index: any)=> {
     return (
-      <TableRow
-        key={index}
-      >
-        <TableCell component="th" scope="row" align="center">
+      <TableRow key={index} sx={{p:2}}>
+        <TableCell sx={{p: 1}}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
           <Checkbox
             checked={isCheked  ?isCheked :false}
             onChange={(e)=>addValues(idcliente, valorunitario, _id, e)}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
+            inputProps={{ 'aria-label': 'controlled' }}/>
+          </Box>
         </TableCell>
-        <TableCell align="center">{nombrezona}</TableCell>
-        <TableCell align="center">{direccion}</TableCell>
-        <TableCell align="center">{codt}</TableCell>
-        <TableCell align="center">{razon_social}</TableCell>
-        <TableCell align="center">{nombre}</TableCell>
-        <TableCell align="center">
-          <FormControl fullWidth sx={{ m: 1 }}>
-          <InputLabel htmlFor={_id.toString()}>Valor Uni</InputLabel>
+        <TableCell align="left" sx={{ p:0.5, maxWidth: 140, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <Tooltip title={nombrezona}>
+                        <Typography variant="body2" sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            fontSize: '0.85rem',
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}>{nombrezona}
+                        </Typography>
+                      </Tooltip>
+                    </TableCell>
+        <TableCell align="left" sx={{ p:0.5,  maxWidth: 250, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <Tooltip title={direccion}>
+            <Typography variant="body2" sx={{
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                fontSize: '0.85rem',
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}>{direccion}
+            </Typography>
+          </Tooltip>
+        </TableCell>
+        <TableCell align="center" sx={{ p: 0.5}} width='30'>{codt}</TableCell>
+          <TableCell align="left" sx={{ p: 0.5, maxWidth: 250, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <Tooltip title={razon_social}>
+              <Typography variant="body2" sx={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  fontSize: '0.85rem',
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  }}> {razon_social}
+              </Typography>
+            </Tooltip>
+          </TableCell>
+          <TableCell align="left" sx={{ p: 0.5, maxWidth: 150, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <Tooltip title={nombre}>
+              <Typography variant="body2" sx={{
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  fontSize: '0.85rem',
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  }}> {nombre}
+              </Typography>
+            </Tooltip>
+          </TableCell>
+        <TableCell sx={{ p: 0.5, maxWidth: 120, textOverflow: 'ellipsis' }}>
+          <FormControl fullWidth sx={{ m: 0 }}>
           <OutlinedInput
               id={_id.toString()}
               startAdornment={<InputAdornment position="start">$</InputAdornment>}
@@ -74,8 +116,8 @@ const RenderZonas = ({zona, updateValor, addValues}: any) => {
 export default function RenderTable({zona}: any) {
   const [showSnack, setShowSnack] = useState(false);
   const [isCheked, setIsCheked] = useState(false);
-  const [message, setMessage] = useState("");
-  const [severity, setSeverity] = useState("");
+  const [message, setMessage] = useState('');
+  const [severity, setSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('success');
   const [valorWithArray, setValorWithArray] = useState<{ _id: any; valorunitario: number; }[]>([]);
   const router = useRouter();
   const pathname = usePathname()
@@ -193,23 +235,35 @@ export default function RenderTable({zona}: any) {
 
   return(
     <TableContainer component={Paper}>
-      <InputZones onSend={validateIfIsSelectd} />
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+
+<Grid container alignItems="center" sx={{ borderBottom: '2px solid #ccc' }} >
+         {/* Lado izquierdo: botones y selects */}
+         <Grid item xs={12} sm={6}>
+         <InputZones onSend={validateIfIsSelectd} />
+          </Grid>
+          {/* Lado derecho: paginación */}
+          <Grid item xs={10} sm={6}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <PaginationTable total={zona[0]?.total ??0} />
+            </Box>
+          </Grid>
+        </Grid>
+      <Table  stickyHeader>
           <TableHead>
-            <TableRow>
-              <TableCell align="center">
+            <TableRow sx={{ backgroundColor: '#fcfcfc'}}>
+              <TableCell  sx={{px: 1, py:0}}>
                 <Checkbox
                   checked={isCheked}
                   onChange={addValuesAll}
-                  inputProps={{ 'aria-label': 'controlled' }}
+                  inputProps={{ 'aria-label': 'Seleccionar todos los clientes' }}
                 />
               </TableCell>
-              <TableCell align="center">Zona</TableCell>
-              <TableCell align="center">Dirección</TableCell>
-              <TableCell align="center">Codt</TableCell>
-              <TableCell align="center">Razon Social</TableCell>
-              <TableCell align="center">Nombre</TableCell>
-              <TableCell align="center">Valor Unitario</TableCell>
+              <TableCell align="left" sx={{ py: 0.5, maxWidth: 180 }}><strong>Zona</strong></TableCell>
+              <TableCell align="left" sx={{ py: 0.5, maxWidth: 300 }}><strong>Dirección</strong></TableCell>
+              <TableCell  align="center" sx={{ py: 0.5}}><strong>Codt</strong></TableCell>
+              <TableCell align="left" sx={{ py: 0.5, maxWidth: 300 }}><strong>Razón Social</strong></TableCell>
+              <TableCell align="left" sx={{ py: 0.5, maxWidth: 200 }}><strong>Nombre Completo</strong></TableCell>
+              <TableCell align="left" sx={{ py: 0.5, maxWidth: 80 }}><strong>Valor Unitario</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -220,7 +274,6 @@ export default function RenderTable({zona}: any) {
           />
         </TableBody>
       </Table>
-      <PaginationTable total={zona[0]?.total ??0} />
       <Snack show={showSnack} setShow={()=>setShowSnack(false)} message={message} severity={severity} />
     </TableContainer>
   )

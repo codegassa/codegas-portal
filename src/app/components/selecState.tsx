@@ -1,6 +1,5 @@
 import React, {useState,useMemo} from 'react';
 import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
@@ -24,18 +23,22 @@ const STATE = [
 
   return (
     <Box sx={{ minWidth: 100 }}>
-      <FormControl fullWidth>
-        <InputLabel id="demo-simple-select-label">Estado</InputLabel>
-        <Select
+      <FormControl fullWidth size="small" variant="outlined">
+         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
-          label="Estado"
           value={initialEstado}   //Usamos initialEstado como valor inicial
           onChange={handleChange}
+          sx={{
+            borderRadius: 2,
+            backgroundColor: '#f5f5f566',
+            fontSize: 12,
+            height: 36,
+            paddingX: 0,}}
         >
           {memoizedState.map((estado) => (
             <MenuItem value={estado} key={estado}>
-              {estado}
+              {estado.toUpperCase()}
             </MenuItem>
           ))}
         </Select>

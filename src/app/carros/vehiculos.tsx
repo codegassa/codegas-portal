@@ -1,33 +1,31 @@
 'use client'
-import react, {useState, useContext, useCallback} from 'react';
-import {FormControl, Avatar, RadioGroup, ListItemAvatar, FormControlLabel, Radio, 
-  Table, TableContainer, Paper, TableHead, TableRow, TableCell, TableBody, Breadcrumbs, Typography } from '@mui/material';
+import React, { useState, useContext, useCallback } from 'react';
+import { Avatar, RadioGroup, FormControlLabel, Radio,Breadcrumbs, Typography, Button, Grid, Card, CardContent
+        } from '@mui/material';
 import { useRouter, useSearchParams } from 'next/navigation';
-import {Person} from '@mui/icons-material';
-import Button from '@mui/material/Button';
+import { Person } from '@mui/icons-material';
 import { blue } from '@mui/material/colors';
-import {Snack} from "../components/snackBar"
-import {addCarPedido} from "../store/fetch-pedido"
-import {DataContext} from "../context/context"
+import { Snack } from "../components/snackBar";
+import { addCarPedido } from "../store/fetch-pedido";
+import { DataContext } from "../context/context";
 
 export interface VehiculoProps {
   _id: number;
   placa: string;
   centro: string;
-  conductor: {
-  nombre: string;  
-  };
+  conductor: { nombre: string };
 }
 
-export default function VehiculosDialog({carro}: any) {
-  const {idUser} = useContext(DataContext)
+export default function VehiculosDialog({ carro }: any) {
+  const { idUser } = useContext(DataContext);
   const [showSnack, setShowSnack] = useState(false);
   const [message, setMessage] = useState("");
-  const router = useRouter()
+  const router = useRouter();
   const searchParams = useSearchParams();
   const placas = searchParams.get('placa') || "";
   const date = searchParams.get('date');
-  
+  const sortedData = [...carro].sort((a, b) => a.placa.localeCompare(b.placa));
+
   const asignCar = useCallback(async (_id: number, placa: string) => {
     const idPedidoArray = placas.split(",").filter(value => value !== "");
     try {
@@ -36,6 +34,7 @@ export default function VehiculosDialog({carro}: any) {
         if (status) {
           setShowSnack(true);
           setMessage(`Carro ${placa} agregado!`);
+         // router.back()
         }
       }));
     } catch (error) {
@@ -44,78 +43,78 @@ export default function VehiculosDialog({carro}: any) {
       setMessage('Hubo un error al asignar el carro.');
     }
   }, [placas, date, idUser]);
+  const [carroActivo, setCarroActivo] = useState<number | null>(null);
 
-    // Renderiza cada vehículo en la tabla
-  const RenderVehiculos = ({ data }: { data: VehiculoProps[] }) => (
-      <>
-        {data.map(({ _id, placa, centro, conductor }) => (
-          <TableRow key={_id}>
-            <TableCell component="th" scope="row" align="center">
-              <FormControl>
-                <RadioGroup
-                  aria-labelledby="radio-button-group"
-                  name="controlled-radio-buttons-group"
-                  onChange={() => asignCar(_id, placa)}
-                  onClick={() => router.back()}
-                >
-                  <FormControlLabel value="select" control={<Radio />} label="" />
-                </RadioGroup>
-              </FormControl>
-            </TableCell>
-            <TableCell align="center">
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
-                  <Person />
-                </Avatar>
-              </ListItemAvatar>
-            </TableCell>
-            <TableCell align="center">{_id}</TableCell>
-            <TableCell align="center">{placa}</TableCell>
-            <TableCell align="center">{centro}</TableCell>
-            <TableCell align="center">{conductor?.nombre}</TableCell>
-          </TableRow>
-        ))}
-      </>
-   );
   return (
     <>
-       <TableContainer component={Paper}>
-      <Breadcrumbs aria-label="breadcrumb" sx={{padding: "10px"}}>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            onClick={() => router.back()}
-          >
-            Pedidos
-          </Button>
-        <Typography color="#a2a1a1"> Pedido N:  
-          {
-            placas.includes("%2C")
-            ?placas.split("%2C").filter(value => value !== "").map((e: any)=> `${e} / `)
-            :placas
-          } 
+      <Breadcrumbs aria-label="breadcrumb" sx={{ px: 2, py: 1 }}>
+        <Button variant="contained" size="small" onClick={() => router.back()}>
+          Pedidos
+        </Button>
+        <Typography variant="caption" color="text.secondary">
+          Pedido N:&nbsp;
+          {placas.includes("%2C")
+            ? placas.split("%2C").filter(Boolean).join(" / ")
+            : placas}
         </Typography>
       </Breadcrumbs>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell align="center">&nbsp;</TableCell>
-            <TableCell align="center">Avatar</TableCell>
-            <TableCell align="center">Id</TableCell>
-            <TableCell align="center">Placa</TableCell>
-            <TableCell align="center">Centro</TableCell>
-            <TableCell align="center">Nombre</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <RenderVehiculos data={carro} />
-        </TableBody>
-      </Table>
-    </TableContainer>   
 
-      
-      <Snack show={showSnack} setShow={()=>setShowSnack(false)} message={message} />
+      <Grid container spacing={2} padding={2}>
+        {sortedData.map(({ _id, placa, centro, conductor }: VehiculoProps) => (
+          <Grid item xs={12} sm={6} md={4} key={_id}>
+            <Card
+              variant="outlined"
+              sx={{
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                p: 0.5,
+                gap: 3,
+                borderRadius: 2,
+                transition: 'all 0.3s ease-in-out',
+                backgroundColor: carroActivo === _id ? '#e3f2fd' : '#f9f9f9', // azul claro
+                border: carroActivo === _id ? '2px solid #1976d2' : '1px solid #e0e0e0',
+                opacity: carroActivo === _id ? 1 : 0.85,
+                '&:hover': { transform: 'scale(1.01)' }
+              }}
+            >
+              <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
+                <Person fontSize="small" />
+              </Avatar>
+              
+              <CardContent sx={{ p: 0, flex: 1 }}>
+                <Typography variant="subtitle2">{conductor?.nombre}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                Placa: <strong>{placa}</strong>  · ID: {_id} · Centro: {centro}
+                </Typography>
+              </CardContent>
+              <RadioGroup
+                onChange={() => {
+                  asignCar(_id, placa);
+                  setCarroActivo(_id);
+                }}
+              >
+              <FormControlLabel
+                value={_id}
+                control={
+                  <Radio
+                    size="small"
+                    checked={carroActivo === _id}
+                    onChange={() => {
+                      asignCar(_id, placa);
+                      setCarroActivo(_id);
+                    }}
+                  />
+                }
+                label=""
+              />
+              </RadioGroup>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Snack show={showSnack} setShow={() => setShowSnack(false) }  message={message} />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import URL from '../utils/url' 
 
-export const fetchZonasByUser = async (limit: any, start: any, idZona: any, type: any, search: any, newValue: any) => {
-    start = start==0 ?0 :(start-1)*10
+export const fetchZonasByUser = async (limit: number, page: number, idZona: number, type: any, search: any, newValue: any) => {
+    const start = (page > 0) ? (page - 1) * limit : 1;
     try {
         const response = await fetch(`${URL}/users/zonas/${limit}/${start}/${idZona}/${type}/${search}`, {cache: 'no-store'});
 

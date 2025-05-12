@@ -97,7 +97,7 @@ export default function Step4({ userId, zona, puntos }: { userId: any; zona: any
         }}
       >
         {renderPunto(puntosList)}
-        <Button color="primary" startIcon={<AddIcon />} onClick={() => setShowDialog(true)}>
+        <Button color="secondary" startIcon={<AddIcon />} onClick={() => setShowDialog(true)}>
           Agregar
         </Button>
       </Box>

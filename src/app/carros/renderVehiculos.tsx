@@ -1,8 +1,20 @@
+'use client';
+import { useEffect, useState } from 'react';
 import { fetchVehiculos } from '../vehiculos/fetchVehiculo';
 import Vehiculos from './vehiculos';
 
-export const RenderVehiculos = async () => {
-    const carro = await fetchVehiculos(); // Obtención de los datos
-    return <Vehiculos carro={carro} />; // Renderizado del componente con los datos
+
+export const RenderVehiculos = () => {
+  const [carro, setCarro] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchVehiculos();
+      setCarro(data);
+    };
+    fetchData();
+  }, []);
+
+  return <Vehiculos carro={carro} />;
 };
   

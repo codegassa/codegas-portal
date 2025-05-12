@@ -1,10 +1,10 @@
-
 import React,{useState, useEffect, useMemo, useCallback } from 'react';
-import { TableRow, TableCell, Box, Collapse, Button, Checkbox, Table, TableBody, TableContainer, TableHead, Typography, Grid, Paper, FormControl, TextField } from '@mui/material';
+import { TableRow, TableCell, Box, Collapse, Button, Checkbox, Table, TableBody, TableContainer, TableHead, Grid, Paper, FormControl, TextField, Tooltip, Typography } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import moment from "moment"
 import dayjs from 'dayjs';
-import {KeyboardArrowDown, KeyboardArrowUp} from '@mui/icons-material';
+import { KeyboardArrowDown, KeyboardArrowUp, RefreshRounded, SettingsBackupRestore} from '@mui/icons-material';
+import ImageIcon from '@mui/icons-material/Image';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {SelectState} from "../components/selecState"
@@ -16,88 +16,132 @@ import {Snack} from "../components/snackBar"
 import {AlertDialog} from "../components/alertDialog/alertDialog"
 import Image from "next/image"
 import AlertConfirm from '../components/alertConfirm/alertConfirm';
+import { Pedido } from '../crear-pedido/crear-pedido.types';
+import MapIcon from '@mui/icons-material/Map';
 
-// Colores de estado
-const {espera, noentregado, innactivo, activo, asignado, otro} = colors
+interface RenderTableProps {
+  orders: Pedido[];
+  total:number;
+}
 
-const RenderTanques = React.memo(({_id, codt, razon_social, cedula, direccion, creado, fechasolicitud, isCheked, fechaentrega, forma, kilos, valorunitario, placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus, setOpenConfirm}: any) => {
-  
+const RenderTanques = React.memo(({_id, codt, razon_social, cedula, direccion, creado, fechasolicitud, isCheked, fechaentrega, forma, kilos, valorunitario, placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus,coordenadas, setOpenConfirm}: any) => {  
   const [open, setOpen] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   
   const background = useMemo(() => {
-    return estado === "espera" ? espera :
-          estado === "noentregado" ? noentregado :
-          estado === "innactivo" ? innactivo :
-          estado === "activo" && !placa && !entregado ? activo :
-          estado === "activo" && !entregado ? asignado : otro;
-  }, [estado, placa, entregado]); 
+    if (estado === "activo" && !placa && !entregado) return colors.activo;
+    if (estado === "activo" && placa && !entregado) return colors.asignado;
+    if (estado === "activo" && entregado) return colors.otro;
+    return colors[estado as keyof typeof colors] || colors.otro;
+  }, [estado, placa, entregado]);
   console.log('En tabla de Order: ',_id)
-  
+
   return (
     <> 
-      <TableRow key={_id} sx={{background}}>
-            <TableCell align="center">
-              <Checkbox
-                checked={isCheked || false}
-                onChange={(e) => addValues(_id, e)}
-                inputProps={{ 'aria-label': 'controlled' }}
-              />
-            </TableCell>
-            <TableCell align="center">
+      <TableRow key={_id} sx={{p:2, background,}}>
+            <TableCell sx={{p: 1}}>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Checkbox checked={isCheked || false} onChange={(e) => addValues(_id, e)}/>
               <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
-              {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
+                {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
               </IconButton>
+              </Box>
             </TableCell>
-            <TableCell align="center" width='40' component="th">{_id}</TableCell>
-            <TableCell align="center" width='30'>{codt}</TableCell>
-            <TableCell align="center">{razon_social}</TableCell>
-            <TableCell align="center">{direccion}</TableCell>
-            <TableCell align="center" width='100'>{zona}</TableCell>
-            <TableCell align="center" width='110'>{fechasolicitud}</TableCell>
-            <TableCell align="center" width='175'>
+            <TableCell align="center"  width='20' component="th">{_id}</TableCell>
+            <TableCell align="center"  width='30'>{codt}</TableCell>
+            <TableCell align="left" sx={{ p: 0.5, maxWidth: 300, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <Tooltip title={razon_social}>
+                <Typography variant="body2" sx={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    fontSize: '0.75rem',
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    }}> {razon_social}
+                </Typography>
+              </Tooltip>
+            </TableCell>
+            <TableCell align="left" sx={{ p:0.5,  maxWidth: 300, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <Tooltip title={direccion}>
+                <Typography variant="body2" sx={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    fontSize: '0.75rem',
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}>{direccion}
+                </Typography>
+              </Tooltip>
+            </TableCell>
+            <TableCell align="left" sx={{ p:0.5, maxWidth: 100, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <Tooltip title={zona}>
+                <Typography variant="body2" sx={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    fontSize: '0.75rem',
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}>{zona}
+                </Typography>
+              </Tooltip>
+            </TableCell>
+            <TableCell align="center" sx={{ p: 0.5}} width='110'>{fechasolicitud}</TableCell>
+            <TableCell align="center" sx={{ p: 0.5}} width='150'>
               <Date setValueDate={(e: any) =>updateDate(e, _id)} value={fechaentrega}/>
             </TableCell>
-            <TableCell align="center">
+            <TableCell align="center" sx={{ p: 0.5}}>
               <SelectState newEstado={estado} setNewEstado={(e: any)=>updateStatus(e, _id)} />
             </TableCell>
-            <TableCell align="center">
+            <TableCell align="center" sx={{ p: 0.5}}>
               <Button variant="contained">
-                <Link href={`carros?placa=${_id}&date=${fechaentrega ?moment(fechaentrega).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')}`} style={{color: "#ffffff", textDecoration: 'none'}}>
+                <Link href={`carros?placa=${_id}&date=${fechaentrega ?moment(fechaentrega).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')}`} style={{color: "#FFF", textDecoration: 'none'}}>
                   {placa ?placa :"Asignar"}
                 </Link>
               </Button>
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell colSpan={10} style={{ paddingBottom: 0, paddingTop: 0 }}>
+            <TableCell colSpan={12} style={{ paddingBottom: 0, paddingTop: 0 }}>
               <Collapse in={open} timeout="auto" unmountOnExit>
-                <Box sx={{ margin: 1 }}>
-                  <Typography variant="h6" gutterBottom>Datos adicionales</Typography>
-                  <TableContainer>
+                <Box sx={{ margin: 0, padding: 1 }}>
+                  <TableContainer component={Paper} elevation={2}>
                     <Table sx={{ minWidth: 750}}>
                       <TableHead>
-                        <TableRow>
-                          <TableCell align="center">Tipo</TableCell>
-                          <TableCell align="center">Kilos</TableCell>
-                          <TableCell align="center">Valor</TableCell>
-                          <TableCell align="center">Cedula</TableCell>
-                          <TableCell align="center">F. Creación</TableCell>
-                          <TableCell align="center">Obervación</TableCell>
-                          <TableCell align="center">Remisión</TableCell>
-                          <TableCell align="center">&nbsp;</TableCell>
+                        <TableRow sx={{ backgroundColor: '#f5f5f5'}}>
+                          <TableCell align="center" sx={{ py: 0.5}}>Tipo</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>Kilos</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>Valor</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>Cedula</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>F. Creación</TableCell>
+                          <TableCell sx={{ py: 0.5, px: 1 }}>
+                          <Box display="flex" justifyContent="space-between" alignItems="center">
+                            <Typography align="center" variant="body2" sx={{ flexGrow: 1 }}>Obervación</Typography>
+                            <Box>
+                            {coordenadas?.x && coordenadas?.y && (
+                                <Tooltip title="Ver Ubicación en Maps">
+                                  <IconButton
+                                    color="success"
+                                    onClick={() =>window.open(`https://www.google.com/maps/search/?api=1&query=${coordenadas.x},${coordenadas.y}`,'_blank')}>
+                                    <MapIcon />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                              {imagencerrar &&<Tooltip title="Ver Remisión"><IconButton color="info" onClick={()=>setShowDialog(true)}><ImageIcon /></IconButton></Tooltip>}
+                              {estado != "espera" &&<Tooltip title="Resetear Pedido"><IconButton color="error" onClick={() => setOpenConfirm(_id)}><SettingsBackupRestore /></IconButton></Tooltip>}
+                            </Box>
+                          </Box>
+                        </TableCell>
                         </TableRow>
-                      </TableHead>
+                        </TableHead>
                       <TableBody>
                         <TableRow>
-                          <TableCell align="center">{forma}</TableCell>
-                          <TableCell align="center">{kilos}</TableCell>
-                          <TableCell align="center">{valorunitario}</TableCell>
-                          <TableCell align="center">{cedula}</TableCell>
-                          <TableCell align="center">{moment(creado).format('YYYY-MM-DD HH:mm')}</TableCell>
-                          <TableCell align="center">{observacion_pedido}</TableCell>
-                          <TableCell align="center">{imagencerrar &&<Button variant="contained" onClick={()=>setShowDialog(true)}>Si</Button>}</TableCell>
-                          <TableCell align="center">{<Button variant="contained" onClick={()=>setOpenConfirm(_id)}>Resetear</Button>}</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>{forma}</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>{kilos}</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>{valorunitario?.toLocaleString('es-CO', { style: 'currency', currency: 'COP',minimumFractionDigits: 0 })}</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>{cedula}</TableCell>
+                          <TableCell align="center" sx={{ py: 0.5}}>{moment(creado).format('YYYY-MM-DD HH:mm')}</TableCell>
+                          <Tooltip title={observacion_pedido}>
+                          <TableCell align="center" sx={{ py: 0.5}}>{observacion_pedido}</TableCell></Tooltip>
                         </TableRow>
                       </TableBody>
                     </Table>
@@ -108,246 +152,204 @@ const RenderTanques = React.memo(({_id, codt, razon_social, cedula, direccion, c
           </TableRow>
          
           <AlertDialog showDialog={showDialog} setShowDialog={()=>setShowDialog(false)}>
-            {imagencerrar &&<Image src={imagencerrar} alt="codegas colombia" width={200} height={500}/> }
+            {imagencerrar &&<Image src={imagencerrar} alt="Codegas colombia" width={200} height={500}/> }
           </AlertDialog>
     </>
   )
 })
 
-export default function RenderTable({orders}: any) {
-  console.log('En RenderTable',orders)
-  const [valorWithArray, setValorWithArray] = useState<{ _id: any }[]>([]);
-  const [newValorWithArray, setNewValorWithArray] = useState<string | undefined>();
+export default function RenderTable({ orders }: RenderTableProps) {
+  console.log('En RenderTable Order',orders)
+  const [valorWithArray, setValorWithArray] = useState<{ _id: string }[]>([]);
+  const [newOrder, setNewOrder] = useState<Pedido[]>(orders);
   const [isCheked, setIsCheked] = useState(false);
-  const [newOrder, setNewOrder] = useState(orders)
+  const [newValorWithArray, setNewValorWithArray] = useState<string>('');
   const [showSnack, setShowSnack] = useState(false);
   const [showDialogInnactivo, setShowDialogInnactivo] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
-  const [message, setMessage] = useState("");
-  const [pedidoId, setPedidoId] = useState("");
-
+  const [message, setMessage] = useState('');
+  const [pedidoId, setPedidoId] = useState('');
   const router = useRouter();
-  const pathname = usePathname()
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const page = searchParams.get('page');
+  const page = searchParams.get('page') || '1';
   const newValue = searchParams.get('newValue');
-  const idUser = searchParams.get('idUser');
-  const acceso = searchParams.get('acceso');
+  const idUser = searchParams.get('idUser') || '';
+  const acceso = searchParams.get('acceso') || '';
   const search = searchParams.get('search') || 'undefined';
-
-
-  useEffect(()=> {
-    let data = ''
-    for(let i=0; i<valorWithArray.length; i ++){
-      data += valorWithArray[i]._id
-      data += ','
-    }
-    setNewValorWithArray(data)
-  }, [valorWithArray])
+  const generateQueryString = useCallback((extra: Record<string, string>) => {
+    const base = `?page=${page}&search=${search}&idUser=${idUser}&acceso=${acceso}`;
+    const extraParams = Object.entries(extra).map(([key, val]) => `&${key}=${val}`).join('');
+    return `${pathname}${base}${extraParams}`;
+  }, [page, search, idUser, acceso, pathname]);
 
   useEffect(() => {
-    setNewOrder(orders)
-  }, [orders, newValue])
+    setNewValorWithArray(valorWithArray.map(e => e._id).join(','));
+  }, [valorWithArray]);
 
+  useEffect(() => {
+    setNewOrder(orders);
+  }, [orders, newValue]);
 
-  const addValues = useCallback((id: any, event: any) => {
-    const index = valorWithArray.some(({ _id }) => _id === id);
-    if (!index) {
-      setValorWithArray((state) => [...state, { _id: id }]);
-    } else {
-      setValorWithArray(valorWithArray.filter(({ _id }) => _id !== id));
-    }
-  
-    const updateOrder = newOrder.map((e: { _id: any }) => {
-      if (e._id === id) {
-        return { ...e, isCheked: event.target.checked };
-      }
-      return e;
+  const addValues = useCallback((id: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    setValorWithArray(prev => {
+      const exists = prev.some(({ _id }) => _id === id);
+      return exists ? prev.filter(({ _id }) => _id !== id) : [...prev, { _id: id }];
     });
-  
-    setNewOrder(updateOrder);
-  }, [valorWithArray, newOrder]);
+    setNewOrder(prev => prev.map(order => order._id === id ? { ...order, isCheked: event.target.checked } : order));
+  }, []);
 
-  const addValuesAll = useCallback(async (event: any) => {
-    const data = newOrder.map((e: any) => {
-      return {
-        ...e,
-        _id: e._id,
-        isCheked: event.target.checked,
-      };
-    });
-  
-    if (event.target.checked) {
-      setValorWithArray(data);
-      setIsCheked(true);
-    }
-    if (!event.target.checked) {
-      setValorWithArray([]);
-      setIsCheked(false);
-    }
-    setNewOrder(data);
+  const addValuesAll = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = event.target.checked;
+    const updatedOrders = newOrder.map(order => ({ ...order, isCheked: checked }));
+    setValorWithArray(checked ? updatedOrders.map(({ _id }) => ({ _id })) : []);
+    setIsCheked(checked);
+    setNewOrder(updatedOrders);
   }, [newOrder]);
 
-  const updateDate = async (date: any, id?: any) => {
-    let dataToSend = valorWithArray.map((e: { _id: any; }) => {
-      return {
-        ...e,
-        fechaentrega: dayjs(date).format('YYYY-MM-DD'),
-      }
-    })
- 
-
-    if(id){
-      dataToSend = [{_id:id, fechaentrega: dayjs(date).format('YYYY-MM-DD')}] 
-    } else {
-      dataToSend = dataToSend
-      setIsCheked(false)
-      setValorWithArray([])
-      
-    }
-    
-    const {status} = await UpdateDatePedido(dataToSend)
+  const updateDate = async (date: Date, id?: string) => {
+    const formattedDate = dayjs(date).format('YYYY-MM-DD');
+    const data = id ? [{ _id: id, fechaentrega: formattedDate }] : valorWithArray.map(({ _id }) => ({ _id, fechaentrega: formattedDate }));
+    const { status } = await UpdateDatePedido(data);
     if (status) {
-      setShowSnack(true)
-      setMessage("Fecha Actualizada status")
-      router.push(`${pathname}?page=${page}&search=${search}&idUser=${idUser}&acceso=${acceso}&newValue=${id+dayjs(date).format('YYYY-MM-DD')}`, undefined)
+      setShowSnack(true);
+      setMessage('Fecha Actualizada');
+      setIsCheked(false);
+      setValorWithArray([]);
+      router.push(generateQueryString({ newValue: (id || '') + formattedDate }));
     }
-  }
-  const updateStatus = async (state: any, id?: any) => {
-    let data = valorWithArray.map((e: { _id: any; }) => {
-      //console.log('Estado Actual: ',state)
-      return {
-        ...e,
-        estado: state,
-      }
-    })
+  };
 
-    if(id){
-      data =  [{_id:id, estado: state}] 
-     
-    } else {
-      data = data
-      setIsCheked(false)
-      setValorWithArray([])
-    }
-    
-    const {status} = await UpdateStatePedido(data)
+  const updateStatus = async (estado: string, id?: string) => {
+    const data = id ? [{ _id: id, estado }] : valorWithArray.map(({ _id }) => ({ _id, estado }));
+    const { status } = await UpdateStatePedido(data);
     if (status) {
-      setShowSnack(true)
-      setMessage(`estado ${state} cambiado!`)
-      router.push(`${pathname}?page=${page}&search=${search}&idUser=${idUser}&acceso=${acceso}&newValue=${id+state}`, undefined)
+      setShowSnack(true);
+      setMessage(`Estado cambiado a ${estado}`);
+      setIsCheked(false);
+      setValorWithArray([]);
+      router.push(generateQueryString({ newValue: (id || '') + estado }));
     }
-    if(state=='innactivo'){
-      setShowDialogInnactivo(true)
-      setPedidoId(id)
+    if (estado === 'innactivo') {
+      setShowDialogInnactivo(true);
+      setPedidoId(id || '');
     }
-  }
-  const sendNovedadInnactivo = async(event: any) => {
+  };
+
+  const sendNovedadInnactivo = async (event: React.FormEvent) => {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const data = {
-      novedad: form.get('novedad'),
-      pedidoId,
-    };
+    const form = new FormData(event.currentTarget as HTMLFormElement);
+    const novedad = form.get('novedad') as string;
+    const { status } = await sendNovedad({ novedad, pedidoId });
+    if (status) {
+      setShowSnack(true);
+      setMessage('Novedad enviada!');
+      setShowDialogInnactivo(false);
+      setPedidoId('');
+    }
+  };
 
-    const {status} = await sendNovedad(data)
+  const resetOrder = async () => {
+    const { status } = await resetPedido(pedidoId);
     if (status) {
-      setShowSnack(true)
-      setMessage(`Novedad enviada!`)
-      setShowDialogInnactivo(false)
-      setPedidoId('')
+      setShowSnack(true);
+      setMessage('Pedido Reseteado!');
+      setOpenConfirm(false);
+      setPedidoId('');
+      router.push(generateQueryString({ newValue: pedidoId + '200' }));
     }
-  }
-  const resetOrder = async() => {
-    const {status} = await resetPedido(pedidoId)
-    if (status) {
-      setShowSnack(true)
-      setMessage(`Pedido Reseteado!`)
-      setOpenConfirm(false)
-      setPedidoId('')
-      router.push(`${pathname}?page=${page}&search=${search}&idUser=${idUser}&acceso=${acceso}&newValue=${pedidoId+200}`, undefined)
-    }
-  }
-  const handleOpenConfirm = (id: any) => {
+  };
+
+  const handleOpenConfirm = (id: string) => {
     setOpenConfirm(true);
     setPedidoId(id);
   };
-  
+
   return(
-    <TableContainer component={Paper}>
-      {
-        valorWithArray.length>0
-        &&<Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={1}>
-              <Button variant="contained" sx={{ marginTop: 1, marginLeft: 1, padding: 1, width: "100%" }}>
-                <Link 
-                  href={`carros?placa=${newValorWithArray}&date=${moment().format('YYYY-MM-DD')}`} 
-                  style={{
-                    color: "#ffffff", 
-                    textDecoration: 'none'
-                  }}
-                >
-                Camiones
-                </Link>
-              </Button>
-            </Grid>
-            <Grid item xs={4} sm={2}>
-              <Date setValueDate={updateDate} />
-            </Grid>
-            <Grid item xs={4} sm={2}  sx={{ marginTop: 1 }} >
-              <SelectState setNewEstado={updateStatus}/>
-            </Grid>
-          </Grid>
-      }
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-          <TableRow>
-              <TableCell align="center">
-                <Checkbox
-                  checked={isCheked}
-                  onChange={addValuesAll}
-                  inputProps={{ 'aria-label': 'controlled' }}
+    <TableContainer component={Paper} sx={{ mt: 0.5 }}>
+        <Grid container alignItems="center" sx={{ borderBottom: '2px solid #ccc' }} >
+         {/* Lado izquierdo: botones y selects */}
+         <Grid item xs={12} sm={6}>
+         {valorWithArray.length > 0 && (
+         <Grid container spacing={2} alignItems="center">
+         <Grid item xs={6} sm={4}>
+              <Button variant="contained">
+              <Link
+               href={`carros?placa=${newValorWithArray}&date=${moment().format('YYYY-MM-DD')}`}
+               style={{color: "white",textDecoration: 'none' }}
+               >
+               Camiones
+             </Link>
+             </Button>
+         </Grid>
+         <Grid item xs={6} sm={4}>
+          <Date setValueDate={updateDate} />
+        </Grid>
+        <Grid item xs={6} sm={4}>
+          <SelectState setNewEstado={updateStatus} />
+        </Grid>
+      </Grid>
+      )}
+    </Grid>
+    {/* Lado derecho: paginación */}
+    <Grid item xs={10} sm={6}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <PaginationTable total={newOrder[0]?.total ?? 0} />
+      </Box>
+    </Grid>
+  </Grid>
+
+      <TableContainer  sx={{maxHeight: 'calc(100vh - 190px)', overflowY: 'auto', display: 'block'}}>
+      <Table stickyHeader>
+      <TableHead >
+        <TableRow sx={{ backgroundColor: '#fcfcfc'}}>
+           <TableCell sx={{px: 1, py:0}}>
+              <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Checkbox 
+                checked={isCheked}
+                onChange={addValuesAll}
+                inputProps={{ 'aria-label': 'Seleccionar todos los pedidos' }}
                 />
-              </TableCell>
-              <TableCell align="center">&nbsp;</TableCell>
-              <TableCell align="center">N pedido</TableCell>
-              <TableCell align="center">Codt</TableCell>
-              <TableCell align="center">Razon Social</TableCell>
-              <TableCell align="center">Direccion</TableCell>
-              <TableCell align="center">Zona</TableCell>
-              <TableCell align="center">F. Solicitud</TableCell>
-              <TableCell align="center">F Entrega</TableCell>
-              <TableCell align="center">Estado</TableCell>
-              <TableCell align="center">Placa</TableCell>
-              
-            </TableRow>
-          </TableHead>
-          <TableBody>
-          {
-            newOrder.map((fila: any, key: string)=> (
-              <RenderTanques {...fila} 
-                key={key} 
-                addValues={addValues} 
+              <IconButton aria-label="expand row" size="small">
+                 <RefreshRounded htmlColor='#ffffff'/>
+              </IconButton>
+              </Box>
+            </TableCell>
+          <TableCell align="center" sx={{ py: 0.5}} width={100}><strong>N° Pedido</strong></TableCell>
+          <TableCell align="center" sx={{ py: 0.5}}><strong>Codt</strong></TableCell>
+          <TableCell align="left" sx={{ py: 0.5, maxWidth: 300 }}><strong>Razón Social</strong></TableCell>
+          <TableCell align="left" sx={{ py: 0.5, maxWidth: 250 }}><strong>Dirección</strong></TableCell>
+          <TableCell align="center" sx={{ py: 0.5}}><strong>Zona</strong></TableCell>
+          <TableCell align="center" sx={{ py: 0.5}}><strong>F. Solicitud</strong></TableCell>
+          <TableCell align="center" sx={{ py: 0.5}}><strong>F. Entrega</strong></TableCell>
+          <TableCell align="center" sx={{ py: 0.5}}><strong>Estado</strong></TableCell>
+          <TableCell align="center" sx={{ py: 0.5}}><strong>Placa</strong></TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+            {newOrder.map((fila) => (
+              <RenderTanques
+                key={fila._id}
+                {...fila}
+                addValues={addValues}
                 updateDate={updateDate}
                 updateStatus={updateStatus}
                 setOpenConfirm={handleOpenConfirm}
-              /> 
-            ))
-          }
-          
-        </TableBody>
+              />
+            ))}
+          </TableBody>
       </Table>
-      <PaginationTable total={newOrder[0]?.total ?? 0} />
+      </TableContainer>
       <Snack show={showSnack} setShow={()=>setShowSnack(false)} message={message} />
        <AlertDialog showDialog={showDialogInnactivo} setShowDialog={() => setShowDialogInnactivo(false)}>
         <Box component="form" noValidate onSubmit={sendNovedadInnactivo}>
           <Grid item xs={12} sm={12}>
-            <FormControl sx={{ width: 500 }}>
+            <FormControl sx={{ width: 400 }}>
               <TextField id="novedad" label="Novedad" name="novedad" multiline rows={4} />
             </FormControl>
           </Grid>
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            Guardar
+            Guardar SI
           </Button>
         </Box>
       </AlertDialog>
