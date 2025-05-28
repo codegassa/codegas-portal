@@ -1,6 +1,6 @@
 import URL from '../utils/url' 
  
-export const getUsers = async (start: number, limit: number, access: number, search: any) => {
+export const getUsers = async (start: number, limit: number, access: string, search: any) => {
     const safeSearch = typeof search === 'string' && search !== 'undefined' ? search : '';
     try {
         

@@ -1,12 +1,13 @@
 import URL from '../utils/url' 
 
-export const fetchZonasByUser = async (limit: number, page: number, idZona: number, type: any, search: any, newValue: any) => {
+export const fetchZonasByUser = async (limit: any, page: any, idZona: any, type: any, search: any, newValue: any) => {
     const start = (page > 0) ? (page - 1) * limit : 1;
     try {
         const response = await fetch(`${URL}/users/zonas/${limit}/${start}/${idZona}/${type}/${search}`, {cache: 'no-store'});
 
         if(!response.ok){
-            throw new Error(`Ruquest failed with status ${response.status}`)
+            const errorText = await response.text();
+            throw new Error(`Request failed with status ${response.status}: ${errorText}`);
         }
         const data = await response.json();
 

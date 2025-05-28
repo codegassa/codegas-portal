@@ -5,9 +5,16 @@ const ACCESS = 'clientes';
 const LIMIT = 10;
 
 export default function CreatePedido({ searchParams }: ParamsProps) {
-    let { page, search, idUser } = searchParams;
-    page = page || 0;
-    search = search ?? undefined;
-    idUser = typeof idUser === 'number' ? idUser : undefined;
-    return RenderCrearPedido({ search, page, limit: LIMIT, access: ACCESS, idUser });
-  }
+let { page = '0', search, idUser } = searchParams;
+
+const numericPage = parseInt(page, 10);
+const numericIdUser = idUser ? parseInt(idUser, 10) : undefined;
+
+return RenderCrearPedido({
+  search,
+  page: numericPage,
+  limit: LIMIT,
+  access: ACCESS,
+  idUser: numericIdUser,
+});
+}

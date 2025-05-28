@@ -1,21 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
-  Box,
-  Button,
-  Container,
-  CssBaseline,
-  FormControl,
-  Grid,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  MenuItem,
-  Select,
-  InputLabel
+  Box, Button, Container, CssBaseline, FormControl, Grid, TextField,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  MenuItem, Select, InputLabel
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Snack } from '../components/snackBar';
@@ -30,7 +17,7 @@ const renderPunto = (puntos: any[]) => (
           <TableCell>Dirección</TableCell>
           <TableCell>Zona</TableCell>
           <TableCell>Capacidad</TableCell>
-          <TableCell>Observacion</TableCell>
+          <TableCell>Observación</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
@@ -51,51 +38,46 @@ export default function Step4({ userId, zona, puntos }: { userId: any; zona: any
   const [showSnack, setShowSnack] = useState(false);
   const [message, setMessage] = useState('');
   const [showDialog, setShowDialog] = useState(false);
-  
   const [selectedZona, setSelectedZona] = useState('');
-  const handleZonaChange = (id: any) => {
-    const label = zona.find(zona => zona._id === id).nombre;
-    setSelectedZona(label)
-  };
+  const [puntosList, setPuntosList] = useState(puntos);
+
+  const handleZonaChange = useCallback((id: any) => {
+    const label = zona.find(z => z._id === id)?.nombre || '';
+    setSelectedZona(label);
+  }, [zona]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    const form = new FormData(event.currentTarget);
+
+    const cleanText = (value: any) => String(value).toUpperCase().replace(/\s+/g, ' ');
+
     const newData = {
-      direccion: data.get('direccion'),
-      capacidad: data.get('capacidad'),
-      observacion: data.get('observacion'),
-      idZona: data.get('idZona'),
+      direccion: cleanText(form.get('direccion')),
+      capacidad: form.get('capacidad'),
+      observacion: cleanText(form.get('observacion')),
+      idZona: form.get('idZona'),
       idCliente: userId,
     };
-    await saveData(newData);
-  };
 
-  const saveData = async (data: any) => {
-    const { status } = await addPuntoUser(data);
+    const { status } = await addPuntoUser(newData);
     if (status) {
       setShowSnack(true);
       setMessage('Ubicación Guardada con éxito');
       setShowDialog(false);
-
-      const updatedPunto = [...puntos, { direccion: data.direccion, nombrezona: selectedZona, capacidad: data.capacidad, observacion: data.observacion }];
-      setPuntosList(updatedPunto);
+      setPuntosList(prev => [...prev, {
+        direccion: newData.direccion,
+        nombrezona: selectedZona,
+        capacidad: newData.capacidad,
+        observacion: newData.observacion,
+      }]);
     }
   };
-
-  const [puntosList, setPuntosList] = useState(puntos);
 
   return (
     <Container component="main" maxWidth="xl">
       <CssBaseline />
-      <Box
-        sx={{
-          marginTop: 6,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
+      <Box sx={{ mt: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         {renderPunto(puntosList)}
         <Button color="secondary" startIcon={<AddIcon />} onClick={() => setShowDialog(true)}>
           Agregar
@@ -103,44 +85,26 @@ export default function Step4({ userId, zona, puntos }: { userId: any; zona: any
       </Box>
       <Snack show={showSnack} setShow={() => setShowSnack(false)} message={message} />
       <AlertDialog showDialog={showDialog} setShowDialog={() => setShowDialog(false)}>
-        <Box component="form" noValidate onSubmit={handleSubmit}>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
           <Grid container spacing={2}>
-            <Grid item xs={10} sm={12}>
-                <FormControl sx={{ width: 500 }}>
-                <TextField id="direccion" label="Dirección" name="direccion"/>
-                </FormControl>
-            </Grid>
-            <Grid item xs={10} sm={12}>
-                <FormControl sx={{ width: 500 }}>
-                <TextField id="capacidad" label="Capacidad Almacenamiento" name="capacidad"/>
-                </FormControl>
-            </Grid>
-            <Grid item xs={10} sm={12}>
-                <FormControl sx={{ width: 500 }}>
-                <TextField id="observacion" label="Observacion Ingreso Vehiculo" name="observacion"/>
-                </FormControl>
-            </Grid>
-            <Grid item xs={10} sm={12}>
+            <Grid item xs={12}><TextField fullWidth name="direccion" label="Dirección" /></Grid>
+            <Grid item xs={12}><TextField fullWidth name="capacidad" label="Capacidad Almacenamiento" /></Grid>
+            <Grid item xs={12}><TextField fullWidth name="observacion" label="Observación Ingreso Vehículo" /></Grid>
+            <Grid item xs={12}>
               <FormControl fullWidth>
                 <InputLabel id="idZona">Zonas</InputLabel>
-                <Select
-                  labelId="idZona"
-                  id="idZona"
-                  label="Zona"
-                  name="idZona"
-                  onChange={(e) => {
-                    handleZonaChange(e.target.value);
-                  }}
-                >
-                  {
-                    zona.map(({nombre, _id})=> <MenuItem value={_id} key={_id}>{nombre}</MenuItem>)
-                  }
+                <Select name="idZona" label="Zona" onChange={(e) => handleZonaChange(e.target.value)}>
+                  {zona.map(({ nombre, _id }) => (
+                    <MenuItem key={_id} value={_id}>{nombre}</MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
-            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+            <Grid item xs={12}>
+              <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                 Guardar
-            </Button>
+              </Button>
+            </Grid>
           </Grid>
         </Box>
       </AlertDialog>

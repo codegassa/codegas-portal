@@ -1,24 +1,34 @@
 'use client';
-import react, { ReactElement, useContext, useEffect } from 'react';
-import { Container, Grid, Box} from '@mui/material';
+import { ReactElement, useContext, useEffect } from 'react';
+import { Container, Grid, Box } from '@mui/material';
 import { redirect, usePathname, useRouter, useSearchParams } from 'next/navigation';
-import {DataContext} from "../context/context"
+import { DataContext } from '../context/context';
 
- 
-const LoyoutRevisiones = ({children}: {children: React.ReactNode}): ReactElement => {
-const {user, idUser, acceso}: any = useContext(DataContext)
-const router = useRouter();
-const pathname = usePathname();
-const searchParams = useSearchParams();
-let search = searchParams.get('search');
-const page = searchParams.get('page');
-  
-  useEffect(()=>{
-    router.push(`${pathname}?page=${page ??0}&idUser=${idUser}&acceso=${acceso}&search=${search ?? ""}`);
-    console.log('Se ejecuta esto en layout')
-  }, [idUser])
-  if(!user) redirect('/')
-  return(
+const LoyoutRevisiones = ({ children }: { children: React.ReactNode }): ReactElement => {
+  const { user, idUser, acceso }: any = useContext(DataContext);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const search = searchParams.get('search') ?? '';
+  const page = searchParams.get('page') ?? '0';
+  const currentIdUser = searchParams.get('idUser');
+  const currentAcceso = searchParams.get('acceso');
+
+  // Redirige si no hay sesión iniciada
+  if (!user) redirect('/');
+
+  useEffect(() => {
+    const shouldRedirect =
+      (idUser && currentIdUser !== idUser) ||
+      (acceso && currentAcceso !== acceso);
+
+    if (shouldRedirect) {
+      router.replace(`${pathname}?page=${page}&idUser=${idUser}&acceso=${acceso}&search=${search}`);
+    }
+  }, [idUser, acceso, currentIdUser, currentAcceso, page, pathname, router, search]);
+
+  return (
     <Box
       component="main"
       sx={{
@@ -29,13 +39,12 @@ const page = searchParams.get('page');
       }}
     >
       <Container maxWidth="xl" sx={{ mt: 1, mb: 1 }} component="section">
-          <Grid item xs={10}>
-            {children}
-          </Grid>
+        <Grid item xs={10}>
+          {children}
+        </Grid>
       </Container>
     </Box>
-  )
-}
+  );
+};
 
-export default LoyoutRevisiones
- 
+export default LoyoutRevisiones;

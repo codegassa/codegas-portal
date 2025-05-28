@@ -1,9 +1,9 @@
 export interface ParamsProps {
-    searchParams: {
-      page?: number;
-      idUser?: number;
-      search?: string | undefined;
-    };
+  searchParams: {
+    page?: string;
+    idUser?: string;
+    search?: string;
+  };
 }
    
 export type RenderPedidoProps = {

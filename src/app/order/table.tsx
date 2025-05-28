@@ -163,7 +163,6 @@ export default function RenderTable({ orders }: RenderTableProps) {
   const [valorWithArray, setValorWithArray] = useState<{ _id: string }[]>([]);
   const [newOrder, setNewOrder] = useState<Pedido[]>(orders);
   const [isCheked, setIsCheked] = useState(false);
-  const [newValorWithArray, setNewValorWithArray] = useState<string>('');
   const [showSnack, setShowSnack] = useState(false);
   const [showDialogInnactivo, setShowDialogInnactivo] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -183,9 +182,7 @@ export default function RenderTable({ orders }: RenderTableProps) {
     return `${pathname}${base}${extraParams}`;
   }, [page, search, idUser, acceso, pathname]);
 
-  useEffect(() => {
-    setNewValorWithArray(valorWithArray.map(e => e._id).join(','));
-  }, [valorWithArray]);
+const newValorWithArray = useMemo(() => valorWithArray.map(e => e._id).join(','), [valorWithArray]);
 
   useEffect(() => {
     setNewOrder(orders);

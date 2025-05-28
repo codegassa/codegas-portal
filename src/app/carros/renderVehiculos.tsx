@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { fetchVehiculos } from '../vehiculos/fetchVehiculo';
+import { fetchVehiculos } from '../store/fetchVehiculo';
 import Vehiculos from './vehiculos';
 
 
