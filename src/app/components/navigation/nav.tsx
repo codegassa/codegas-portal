@@ -8,6 +8,7 @@ import {Logout} from '@mui/icons-material';
 import {MainListItems} from './listItems';
 import {DataContext} from '../../context/context'
 import {redirect} from 'next/navigation'
+import Image from 'next/image';
 
 const drawerWidth = 190;
 
@@ -101,11 +102,13 @@ export default function Nav({children}: {children: React.ReactNode}) {
         <Box sx={{height: '100%',display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
           <Box>
           <Toolbar disableGutters sx={{display: 'flex', justifyContent: 'flex-start', alignItems: 'center', px:2}}>
-          <img src={open ? '/images/logocode.webp' : '/images/codeBlue.png'}
-               width={open ? 140 : 26}
-               alt='Logo'
-               style={{ cursor: 'pointer' }}
-               onClick={toggleDrawer}
+          <Image 
+                src={open ? '/images/logocode.webp' : '/images/codeBlue.png'}
+                width={open ? 140 : 36}
+                height={open ? 40 : 36} // Ajusta según la proporción de tu imagen
+                alt="Logo"
+                style={{ cursor: 'pointer' }}
+                onClick={toggleDrawer}
             />
           </Toolbar>
           <Divider />
