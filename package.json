@@ -1,6 +1,6 @@
 {
   "name": "codegas",
-  "version": "3.0.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -29,7 +29,7 @@
     "eslint-config-next": "13.4.2",
     "firebase": "^11.4.0",
     "moment": "^2.29.4",
-    "next": "^14.0.0",
+    "next": "14.2",
     "postcss": "^8.5.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
