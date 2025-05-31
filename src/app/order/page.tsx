@@ -21,10 +21,7 @@ const Order = ({ searchParams }: any) => {
 
   return (
     <>
-      {/* Componente de búsqueda */}
       <InputSearch />
-
-      {/* Solo renderizar RenderOrder si idUser está presente */}
       {idUser && (
           <RenderOrder
             idUser={idUser}

@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Paper, InputBase, IconButton, MenuItem, FormControl, Select, Box, debounce, SelectChangeEvent} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -43,7 +43,7 @@ export default function InputSearch() {
     localStorage.setItem('selectedFilter', selectedFilter);
   }, [searchText, selectedFilter]);
 
-  const buildQuery = (text: string, filtro: string) => {
+  const buildQuery = useCallback((text: string, filtro: string) => {
     const filterObj: Record<string, string> = {};
     const option = filtroOpciones.find(f => f.label === filtro);
     if (option) {
@@ -61,7 +61,7 @@ export default function InputSearch() {
     if (acceso) params.set('acceso', acceso);
     params.set('page', '1');
     return `${pathname}?${params.toString()}`;
-  };
+  }, [pathname, idUser, acceso]);
 
   const debouncedSearch = useMemo(() => debounce((text: string, filtro: string) => {
         if (text.length >= 4 || text === '') {
@@ -69,7 +69,7 @@ export default function InputSearch() {
           router.push(query);
         }
       }, 500),
-    [pathname, idUser, acceso]
+    [buildQuery, router]
   );
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

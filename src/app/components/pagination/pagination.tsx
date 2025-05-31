@@ -53,7 +53,7 @@ export function PaginationTable({ total }: { total: number }) {
   useEffect(() => {
     if (page === '1') return;
     router.push(`${pathname}?${buildQueryParams}`);
-  }, [pathname, buildQueryParams]);
+  }, [pathname, buildQueryParams, page, router]);
 
   return (
     <Stack spacing={2} sx={{ padding: 1 }} direction="row" alignItems="center" justifyContent="space-between">
