@@ -1,8 +1,28 @@
-import {fetchTanques} from '../store/fetch-tanque'
-import RenderTable from './table'
+'use client';
+import { useEffect, useState } from 'react';
+import { fetchTanques } from '../store/fetch-tanque';
+import RenderTable from './table';
 
-export const RenderTanques = async function RenderTanques({limit, page, search}: any) {
-  let tanque = await fetchTanques(limit, page, search);
+interface Props {
+  limit: number;
+  page: number;
+  search: string;
+}
 
-  return <RenderTable tanques={tanque} />;
-}  
+export const RenderTanques = ({ limit, page, search }: Props) => {
+  const [data, setData] = useState<any[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoaded(false);
+      const result = await fetchTanques(limit, page, search);
+      setData(result);
+      setLoaded(true);
+    };
+    loadData();
+  }, [limit, page, search]);
+
+  if (!loaded) return null;
+  return <RenderTable tanques={data} />;
+};

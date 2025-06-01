@@ -1,19 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  CssBaseline,
-  FormControl,
-  Grid,
-  TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-} from '@mui/material';
+import {Box, Button, Container, CssBaseline, FormControl, Grid, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { Snack } from '../components/snackBar';
 import { AlertDialog } from '../components/alertDialog/alertDialog';

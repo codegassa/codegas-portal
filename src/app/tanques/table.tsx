@@ -12,7 +12,7 @@ const RenderTanques = ({_id, codigoactivo, capacidad, fabricante, registroonac, 
   const [open, setOpen] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   return (
-    <Fragment> 
+    <> 
       <TableRow
         key={_id}
       >
@@ -81,7 +81,7 @@ const RenderTanques = ({_id, codigoactivo, capacidad, fabricante, registroonac, 
           </Collapse>
         </TableCell>
       </TableRow>
-    </Fragment>
+    </>
   )
 }
 
