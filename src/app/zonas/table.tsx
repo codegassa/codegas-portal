@@ -1,5 +1,5 @@
 'use client' 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { TableRow, TableCell, Checkbox, FormControl, InputLabel, InputAdornment, OutlinedInput, Paper, Table, TableBody, TableContainer, TableHead, Box, Tooltip, Typography, Grid } from '@mui/material';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {Snack} from "../components/snackBar"
@@ -129,51 +129,49 @@ export default function RenderTable({zona}: any) {
 
   const [newValorUnitario, setNewValorUnitario] = useState({})
   const [newZona, setNewZona] = useState(zona)
+  const saveData = useCallback(async (data: any, allUsers: boolean, type: string, replaceParams: any) => {
+      let status = false;
+      if (allUsers) {
+        const response = await ChangeValorUnitarioAll(replaceParams, type)
+        status = response.status
+      } else {
+        const response = await ChangeValorUnitarioSelected(data)
+        status = response.status
+      }
+
+      if (status) {
+        setShowSnack(true)
+        setMessage("Valor Unitario actualizado")
+        setSeverity('success')
+        setValorWithArray([])
+        setIsCheked(false)
+        router.push(`${pathname}?page=${page}&search=${search}&newValue=${replaceParams}`, undefined)
+      } else {
+        setMessage("Houston tenemos un problema")
+        setSeverity('error')
+      }
+    }, [pathname, page, search, router])
 
   useEffect(() => {
     setNewZona(zona)
   }, [zona, newValue])
-  useEffect(() => {
-    const {valor: value, replace, typeValue: type, allUsers}: any = newValorUnitario
-    const typeValue = replace==0 ?value :replace
-    const typeParams = replace==0 ?type :'replace'
- 
-    const data = valorWithArray.map(({_id, valorunitario}: any)=>{
-      const newValue = type==="porcentaje" || type==undefined ? valorunitario +((valorunitario*Number(value))/100) : valorunitario+Number(value)
-      const valorUnitario = replace==0 ?Math.round(parseFloat(newValue)) :Number(replace)
-      return {
-        _id,
-        valorUnitario
-      }
-    })
-   
-    if( value || replace|| type) saveData(data, allUsers, typeParams, typeValue)
-  }, [newValorUnitario])
+      useEffect(() => {
+        const { valor: value, replace, typeValue: type, allUsers }: any = newValorUnitario
+        const typeValue = replace == 0 ? value : replace
+        const typeParams = replace == 0 ? type : 'replace'
 
-  const saveData = async (data: any, allUsers: boolean, type: string, replaceParams: any) => {
-    let status = false;
-    if(allUsers) {
-      const response =  await ChangeValorUnitarioAll(replaceParams, type)
-      status= response.status
-    }
-    if(!allUsers){
-      const response =  await ChangeValorUnitarioSelected(data)
-      status= response.status
-    }
- 
-    if (status) {
-      setShowSnack(true)
-      setMessage("Valor Unitario actualizado")
-      setSeverity('success')
-      setValorWithArray([])
-      setIsCheked(false)
-      router.push(`${pathname}?page=${page}&search=${search}&newValue=${replaceParams}`, undefined)
-    }
-    else if(!status){
-      setMessage("Houston tenemos un problema")
-      setSeverity('error')
-    }
-  }
+        const data = valorWithArray.map(({ _id, valorunitario }: any) => {
+          const newValue = type === 'porcentaje' || type === undefined
+            ? valorunitario + ((valorunitario * Number(value)) / 100)
+            : valorunitario + Number(value)
+          const valorUnitario = replace == 0
+            ? Math.round(parseFloat(newValue))
+            : Number(replace)
+          return { _id, valorUnitario }
+        })
+
+        if (value || replace || type) saveData(data, allUsers, typeParams, typeValue)
+      }, [newValorUnitario, valorWithArray, saveData])
 
   const addValuesAll = async (event: any) => {
     const data = newZona.map((e: any)=>{

@@ -24,7 +24,8 @@ interface RenderTableProps {
   total:number;
 }
 
-const RenderTanques = React.memo(({_id, codt, razon_social, cedula, direccion, creado, fechasolicitud, isCheked, fechaentrega, forma, kilos, valorunitario, placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus,coordenadas, setOpenConfirm}: any) => {  
+const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fechasolicitud, isCheked, fechaentrega, forma, kilos, valorunitario,
+   placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus,coordenadas, setOpenConfirm}: any) => {  
   const [open, setOpen] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   
@@ -156,7 +157,8 @@ const RenderTanques = React.memo(({_id, codt, razon_social, cedula, direccion, c
           </AlertDialog>
     </>
   )
-})
+}
+RenderTanques.displayName = 'RenderTanques';
 
 export default function RenderTable({ orders }: RenderTableProps) {
   console.log('En RenderTable Order',orders)
