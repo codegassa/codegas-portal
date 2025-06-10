@@ -8,7 +8,7 @@ export const fetchPedido = async (idUser: string, page: number, search: any, acc
   
     const start = (page > 0) ? (page - 1) * limit : 1;
     const url = `${URL}/ped/pedido/todos/app/${idUser}/${limit}/${start}/${acceso}/${search || ''}`;
-    console.log('URL generada:', url);
+    //console.log('URL generada:', url);
   
     try {
       const response = await fetch(url, { cache: 'no-store' });
@@ -118,7 +118,7 @@ export const sendNovedad = async(data: any) =>{
 }
 
 export const resetPedido = async(idPedido: any) =>{
-    console.log(idPedido)
+    //console.log(idPedido)
     try {
         const response = await fetch(`${URL}/ped/pedido/reset/${idPedido}`, {
             method: 'GET', 

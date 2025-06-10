@@ -25,7 +25,8 @@ interface RenderTableProps {
 }
 
 const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fechasolicitud, isCheked, fechaentrega, forma, kilos, valorunitario,
-   placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus,coordenadas, setOpenConfirm}: any) => {  
+   placa, observacion_pedido, estado, entregado, imagencerrar, addValues, zona, updateDate, updateStatus, coordenadas, capacidad, usuariocrea
+, setOpenConfirm, canEdit}: any) => {  
   const [open, setOpen] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   
@@ -35,14 +36,14 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
     if (estado === "activo" && entregado) return colors.otro;
     return colors[estado as keyof typeof colors] || colors.otro;
   }, [estado, placa, entregado]);
-  console.log('En tabla de Order: ',_id)
+  //console.log('En tabla de Order: ',_id)
 
   return (
     <> 
       <TableRow key={_id} sx={{p:2, background,}}>
             <TableCell sx={{p: 1}}>
               <Box display="flex" justifyContent="space-between" alignItems="center">
-              <Checkbox checked={isCheked || false} onChange={(e) => addValues(_id, e)}/>
+              {canEdit ? (<Checkbox checked={isCheked || false} onChange={(e) => addValues(_id, e)}/>) : ( <Typography variant="body2"></Typography>)}
               <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
                 {open ? <KeyboardArrowUp /> : <KeyboardArrowDown />}
               </IconButton>
@@ -52,53 +53,38 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
             <TableCell align="center"  width='30'>{codt}</TableCell>
             <TableCell align="left" sx={{ p: 0.5, maxWidth: 300, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               <Tooltip title={razon_social}>
-                <Typography variant="body2" sx={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    fontSize: '0.75rem',
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
+                <Typography variant="body2" sx={{display: '-webkit-box', WebkitLineClamp: 2, fontSize: '0.75rem', WebkitBoxOrient: 'vertical', overflow: 'hidden',
                     }}> {razon_social}
                 </Typography>
               </Tooltip>
             </TableCell>
             <TableCell align="left" sx={{ p:0.5,  maxWidth: 300, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               <Tooltip title={direccion}>
-                <Typography variant="body2" sx={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    fontSize: '0.75rem',
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
+                <Typography variant="body2" sx={{display: '-webkit-box', WebkitLineClamp: 2, fontSize: '0.75rem', WebkitBoxOrient: 'vertical', overflow: 'hidden',
                   }}>{direccion}
                 </Typography>
               </Tooltip>
             </TableCell>
             <TableCell align="left" sx={{ p:0.5, maxWidth: 100, whiteSpace: 'normal', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               <Tooltip title={zona}>
-                <Typography variant="body2" sx={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    fontSize: '0.75rem',
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
+                <Typography variant="body2" sx={{display: '-webkit-box', WebkitLineClamp: 2, fontSize: '0.75rem', WebkitBoxOrient: 'vertical', overflow: 'hidden',
                   }}>{zona}
                 </Typography>
               </Tooltip>
             </TableCell>
             <TableCell align="center" sx={{ p: 0.5}} width='110'>{fechasolicitud}</TableCell>
             <TableCell align="center" sx={{ p: 0.5}} width='150'>
-              <Date setValueDate={(e: any) =>updateDate(e, _id)} value={fechaentrega}/>
+             {canEdit ? (<Date setValueDate={(e: any) =>updateDate(e, _id)} value={fechaentrega}/>) : ( <Typography variant="body2">{fechaentrega ? moment(fechaentrega).format('YYYY-MM-DD'):"YYYY-MM-DD"}</Typography>)}
             </TableCell>
             <TableCell align="center" sx={{ p: 0.5}}>
-              <SelectState newEstado={estado} setNewEstado={(e: any)=>updateStatus(e, _id)} />
+              {canEdit ? (<SelectState newEstado={estado} setNewEstado={(e: any)=>updateStatus(e, _id)} /> ) : ( <Typography variant="body2">{estado.toUpperCase()}</Typography>)}
             </TableCell>
             <TableCell align="center" sx={{ p: 0.5}}>
-              <Button variant="contained">
+              {canEdit ? (<Button variant="contained">
                 <Link href={`carros?placa=${_id}&date=${fechaentrega ?moment(fechaentrega).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD')}`} style={{color: "#FFF", textDecoration: 'none'}}>
                   {placa ?placa :"Asignar"}
                 </Link>
-              </Button>
+              </Button>) : (<Typography variant="body2">{placa ?placa :"---###"}</Typography>)}
             </TableCell>
           </TableRow>
           <TableRow>
@@ -109,6 +95,7 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
                     <Table sx={{ minWidth: 750}}>
                       <TableHead>
                         <TableRow sx={{ backgroundColor: '#f5f5f5'}}>
+                          <TableCell align="center" sx={{ py: 0.5}}>Cap. GL</TableCell>
                           <TableCell align="center" sx={{ py: 0.5}}>Tipo</TableCell>
                           <TableCell align="center" sx={{ py: 0.5}}>Kilos</TableCell>
                           <TableCell align="center" sx={{ py: 0.5}}>Valor</TableCell>
@@ -128,7 +115,7 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
                                 </Tooltip>
                               )}
                               {imagencerrar &&<Tooltip title="Ver Remisión"><IconButton color="info" onClick={()=>setShowDialog(true)}><ImageIcon /></IconButton></Tooltip>}
-                              {estado != "espera" &&<Tooltip title="Resetear Pedido"><IconButton color="error" onClick={() => setOpenConfirm(_id)}><SettingsBackupRestore /></IconButton></Tooltip>}
+                              {canEdit && estado != "espera" &&<Tooltip title="Resetear Pedido"><IconButton color="error" onClick={() => setOpenConfirm(_id)}><SettingsBackupRestore /></IconButton></Tooltip>}
                             </Box>
                           </Box>
                         </TableCell>
@@ -136,11 +123,13 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
                         </TableHead>
                       <TableBody>
                         <TableRow>
+                          <TableCell align="center" sx={{ py: 0.5}}>{capacidad}</TableCell>
                           <TableCell align="center" sx={{ py: 0.5}}>{forma}</TableCell>
                           <TableCell align="center" sx={{ py: 0.5}}>{kilos}</TableCell>
                           <TableCell align="center" sx={{ py: 0.5}}>{valorunitario?.toLocaleString('es-CO', { style: 'currency', currency: 'COP',minimumFractionDigits: 0 })}</TableCell>
                           <TableCell align="center" sx={{ py: 0.5}}>{cedula}</TableCell>
-                          <TableCell align="center" sx={{ py: 0.5}}>{moment(creado).format('YYYY-MM-DD HH:mm')}</TableCell>
+                          <Tooltip title={usuariocrea}>
+                          <TableCell align="center" sx={{ py: 0.5}}>{moment(creado).format('YYYY-MM-DD HH:mm')}</TableCell></Tooltip>
                           <Tooltip title={observacion_pedido}>
                           <TableCell align="center" sx={{ py: 0.5}}>{observacion_pedido}</TableCell></Tooltip>
                         </TableRow>
@@ -153,7 +142,7 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
           </TableRow>
          
           <AlertDialog showDialog={showDialog} setShowDialog={()=>setShowDialog(false)}>
-            {imagencerrar &&<Image src={imagencerrar} alt="Codegas colombia" width={200} height={500}/> }
+          {imagencerrar && <Image src={imagencerrar} alt="Codegas" width={240} height={480}/> }
           </AlertDialog>
     </>
   )
@@ -161,7 +150,7 @@ const RenderTanques = ({_id, codt, razon_social, cedula, direccion, creado, fech
 RenderTanques.displayName = 'RenderTanques';
 
 export default function RenderTable({ orders }: RenderTableProps) {
-  console.log('En RenderTable Order',orders)
+  //console.log('En RenderTable Order',orders)
   const [valorWithArray, setValorWithArray] = useState<{ _id: string }[]>([]);
   const [newOrder, setNewOrder] = useState<Pedido[]>(orders);
   const [isCheked, setIsCheked] = useState(false);
@@ -185,6 +174,7 @@ export default function RenderTable({ orders }: RenderTableProps) {
   }, [page, search, idUser, acceso, pathname]);
 
 const newValorWithArray = useMemo(() => valorWithArray.map(e => e._id).join(','), [valorWithArray]);
+const canEdit = acceso === 'admin' || acceso === 'despacho';
 
   useEffect(() => {
     setNewOrder(orders);
@@ -303,7 +293,7 @@ const newValorWithArray = useMemo(() => valorWithArray.map(e => e._id).join(',')
       <TableHead >
         <TableRow sx={{ backgroundColor: '#fcfcfc'}}>
            <TableCell sx={{px: 1, py:0}}>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
+              {canEdit&&(<Box display="flex" justifyContent="space-between" alignItems="center">
               <Checkbox 
                 checked={isCheked}
                 onChange={addValuesAll}
@@ -312,7 +302,7 @@ const newValorWithArray = useMemo(() => valorWithArray.map(e => e._id).join(',')
               <IconButton aria-label="expand row" size="small">
                  <RefreshRounded htmlColor='#ffffff'/>
               </IconButton>
-              </Box>
+              </Box>)}
             </TableCell>
           <TableCell align="center" sx={{ py: 0.5}} width={100}><strong>N° Pedido</strong></TableCell>
           <TableCell align="center" sx={{ py: 0.5}}><strong>Codt</strong></TableCell>
@@ -330,6 +320,7 @@ const newValorWithArray = useMemo(() => valorWithArray.map(e => e._id).join(',')
               <RenderTanques
                 key={fila._id}
                 {...fila}
+                canEdit={canEdit}
                 addValues={addValues}
                 updateDate={updateDate}
                 updateStatus={updateStatus}
@@ -348,7 +339,7 @@ const newValorWithArray = useMemo(() => valorWithArray.map(e => e._id).join(',')
             </FormControl>
           </Grid>
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-            Guardar SI
+            Guardar
           </Button>
         </Box>
       </AlertDialog>

@@ -21,20 +21,17 @@ export const getPuntos = async (id: any) => {
   };
 
  
-export const addPuntoUser = async(date: any) =>{
+export const addPuntoUser = async(data: any) =>{ 
     try {
-        const response = await fetch(`${URL}/pun/punto`, {
-            method: 'POST', 
-            body: JSON.stringify(date),
-            cache: 'no-store'
-        });
-        const data = await response.json();
-        if (response.status !==200) {
-            throw new Error(`Request failed with status ${response.status}`)
-        }
-        return data
-    } catch (error){
-        console.error(error)
-        return []
-    }
-}
+        const res = await fetch(`${URL}/pun/punto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(`Request failed with status ${res.status}`);
+    return await res.json();
+  } catch (error) {
+    console.error(error);
+    return { status: false };
+  }
+};

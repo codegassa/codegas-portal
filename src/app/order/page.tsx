@@ -1,9 +1,6 @@
 import React, { lazy, useMemo} from 'react';
 import InputSearch from "../components/search/search";
 
-// Establecemos un límite fijo para las órdenes
-//const limit = 10;
-
 // Cargar RenderOrder de manera diferida (lazy loading)
 const RenderOrder = lazy(() => import('./RenderOrder'));
 

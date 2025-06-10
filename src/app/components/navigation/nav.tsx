@@ -137,7 +137,7 @@ export default function Nav({children}: {children: React.ReactNode}) {
                 ? theme.palette.grey[100]
                 : theme.palette.grey[500],
             flexGrow: 1,
-            height: '100vh',
+            height: '99vh',
             overflow: 'auto',
           }}
         >

@@ -1,5 +1,4 @@
 'use client';
-
 import React, { memo, forwardRef } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -56,5 +55,4 @@ const AlertConfirm = ({ openConfirm, title, handleConfirm, handleClose }: AlertC
   );
 };
 
-// Envolver en memo para evitar renders innecesarios
 export default memo(AlertConfirm);

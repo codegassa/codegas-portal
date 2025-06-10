@@ -1,5 +1,4 @@
 'use client'
-
 import React from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
@@ -12,7 +11,6 @@ export function AlertDialog({ children, showDialog, setShowDialog }: AlertDialog
       onClose={() => setShowDialog(false)}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
-      fullWidth
       maxWidth="sm"
     >
       <DialogContent>

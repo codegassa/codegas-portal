@@ -40,7 +40,7 @@ export default function Reports() {
     const fechaInicio = start.format('YYYY-MM-DD');
     const fechaFin = end.format('YYYY-MM-DD');
     const url = `${URL}/informe/${key}/${fechaInicio}/${fechaFin}/${nombre}`;
-    console.log('Ruta de descarga:',url);
+    //console.log('Ruta de descarga:',url);
     try {
       const response = await fetch(url);
       const blob = await response.blob();

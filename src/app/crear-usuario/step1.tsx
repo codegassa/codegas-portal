@@ -1,8 +1,7 @@
 'use client';
 import React, { useState, useContext, useCallback, useMemo } from 'react';
 import {Box, Button, FormControl, Container, CssBaseline, InputLabel, Grid,
-  MenuItem, Select, TextField, SelectChangeEvent
-} from '@mui/material';
+  MenuItem, Select, TextField, SelectChangeEvent} from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
 import { Snack } from "../components/snackBar";
 import { accesos, fields, tipos } from "../utils/users_info";
@@ -29,22 +28,23 @@ export default function Step1({ data }: any) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
 
-    const cleanText = (value: any) => String(value).toUpperCase().replace(/\s+/g, '');
-
+    const cleanText = (value: any) => String(value).toUpperCase().replace(/\s{2,}/g, ' ').trim();
+    
     const userPayload = {
       email: form.get('email'),
       cedula: form.get('cedula'),
-      nombre: cleanText(form.get('nombre')),
+      nombre: form.get('nombre'),
       celular: form.get('celular'),
+      newTipo,
       codMagister: form.get('codMagister'),
       razon_social: cleanText(form.get('razon_social')),
-      direccion_factura: cleanText(form.get('direccion_factura')),
+      direccion_factura: form.get('direccion_factura'),
       codt: form.get('codt'),
       valorUnitario: form.get('valorUnitario'),
       acceso: form.get('acceso'),
       idPadre,
     };
-
+    //console.log('Datos que se envían:', userPayload);
     try {
       const response = await createUserFirebase(userPayload.email);
       if (typeof response === 'string') {
@@ -65,7 +65,6 @@ export default function Step1({ data }: any) {
       console.error(error);
     }
   };
-
   const filteredFields = useMemo(() => (
     fields.filter(({ acceso }) => acceso === 'all' || acceso === newAcceso)
   ), [newAcceso]);
@@ -103,7 +102,7 @@ export default function Step1({ data }: any) {
                 <FormControl fullWidth>
                   <InputLabel id="tipo">Tipo</InputLabel>
                   <Select
-                    name="tipo"
+                    name="Tipo"
                     value={newTipo}
                     label="Tipo"
                     onChange={handleSelect(setTipo)}
