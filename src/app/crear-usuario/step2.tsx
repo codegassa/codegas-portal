@@ -43,7 +43,7 @@ export default function Step2({ userId, zona, puntos }: { userId: any; zona: any
 
   const handleZonaChange = useCallback((id: any) => {
     setSelectedZona(id);
-  }, [zona]);
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
